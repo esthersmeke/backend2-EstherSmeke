@@ -1,0 +1,11 @@
+# Ignorar dependencias
+node_modules/
+package-lock.json
+
+# Ignorar archivos de configuración sensible
+.env
+
+# Ignorar archivos de datos y de uso local
+public/img/
+products.json
+carts.json

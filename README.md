@@ -41,14 +41,6 @@ Este proyecto es una implementación backend para un sistema de ecommerce, desar
    npm start
    ```
 
-## Variables de Entorno
-
-Asegúrate de incluir un archivo `.env` con las siguientes variables:
-
-JWT_SECRET=clavecoderjwt
-
-SESSION_SECRET=clavecodersession
-
 ## Uso
 
 - **POST /api/sessions/register**: Registro de usuarios.

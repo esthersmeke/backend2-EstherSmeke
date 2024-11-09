@@ -35,7 +35,6 @@ router.get("/failregister", (req, res) =>
   res.send({ error: "Registro fallido" })
 );
 
-// Ruta de inicio de sesión con JWT
 router.post(
   "/login",
   passport.authenticate("login", {
@@ -51,22 +50,18 @@ router.post(
       req.user.role = "user";
     }
 
+    // Genera el token JWT
     const token = jwt.sign(
       { id: req.user._id, role: req.user.role },
       process.env.JWT_SECRET, // usa la clave secreta de la variable de entorno
       { expiresIn: "1h" }
     );
 
-    req.session.user = {
-      first_name: req.user.first_name,
-      last_name: req.user.last_name,
-      age: req.user.age,
-      email: req.user.email,
-      role: req.user.role,
-      token: token,
-    };
-
-    res.redirect("/profile");
+    // Enviar el token en una cookie y responder con JSON
+    res
+      .cookie("jwt", token, { httpOnly: true, secure: false }) // Cambia `secure: true` si usas HTTPS
+      .status(200)
+      .json({ status: "success", message: "Autenticación exitosa" });
   }
 );
 

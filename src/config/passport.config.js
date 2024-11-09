@@ -96,11 +96,19 @@ const initializePassport = () => {
     )
   );
 
+  const cookieExtractor = (req) => {
+    let token = null;
+    if (req && req.cookies) {
+      token = req.cookies["jwt"]; // Cambia 'jwt' por el nombre que le hayas dado a la cookie
+    }
+    return token;
+  };
+
   // Estrategia JWT para autenticación de token
   passport.use(
     new JwtStrategy(
       {
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        jwtFromRequest: cookieExtractor,
         secretOrKey: process.env.JWT_SECRET, // Clave secreta desde .env
       },
       async (jwt_payload, done) => {

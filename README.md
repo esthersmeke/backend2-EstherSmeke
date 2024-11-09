@@ -23,43 +23,37 @@ Este proyecto es una implementación backend para un sistema de ecommerce, desar
 
 1. Clona el repositorio:
 
-    ```bash
-    git clone https://github.com/esthersmeke/backend2-EstherSmeke.git
-    ```
+   ```bash
+   git clone https://github.com/esthersmeke/backend2-EstherSmeke.git
+   ```
 
 2. Instala las dependencias:
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 
 3. Configura las variables de entorno en un archivo `.env` en la raíz del proyecto.
 
 4. Inicia el servidor:
 
-    ```bash
-    npm start
-    ```
+   ```bash
+   npm start
+   ```
 
 ## Variables de Entorno
 
 Asegúrate de incluir un archivo `.env` con las siguientes variables:
 
-JWT_SECRET=tu_jwt_secret 
-SESSION_SECRET=tu_session_secret
+JWT_SECRET=clavecoderjwt
 
-  (( JWT_SECRET=clavecoderjwt ))
-  (( SESSION_SECRET=clavecodersession ))
-
+SESSION_SECRET=clavecodersession
 
 ## Uso
 
-- **Registro de Usuarios**: `/register`
-- **Inicio de Sesión**: `/login`
-- **Cierre de Sesión**: `/logout`
-- **Perfil de Usuario**: `/profile` (requiere autenticación)
-- **Autenticación con GitHub**: `/api/sessions/github`
-
-## Rutas API
-
+- **POST /api/sessions/register**: Registro de usuarios.
+- **POST /api/sessions/login**: Inicio de sesión.
+- **GET /api/sessions/logout**: Cierre de sesión.
 - **GET /api/sessions/current**: Devuelve los datos del usuario autenticado a partir del token JWT.
+- **GET /profile**: Perfil de usuario (requiere autenticación).
+- **GET /api/sessions/github**: Autenticación con GitHub.

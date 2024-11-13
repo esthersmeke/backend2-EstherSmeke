@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import mongoose from "mongoose";
 import express from "express";
 import session from "express-session";
@@ -13,10 +12,9 @@ import viewsRouter from "./routes/viewsRouter.js";
 import bcrypt from "bcryptjs";
 import User from "./dao/models/userModel.js";
 
+process.loadEnvFile();
 const app = express();
-const PORT = 8080;
-
-dotenv.config();
+const PORT = process.env.PORT;
 
 // Configuración de conexión a MongoDB Atlas
 mongoose

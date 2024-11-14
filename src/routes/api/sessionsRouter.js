@@ -15,7 +15,9 @@ router.post(
     req.login(req.user, (err) => {
       if (err) {
         console.error("Error en login:", err);
-        return res.redirect("/api/sessions/login");
+        return res
+          .status(500)
+          .json({ error: "Error al iniciar sesión después de registro." });
       }
 
       req.session.user = {
@@ -26,13 +28,24 @@ router.post(
         role: req.user.role,
       };
 
-      res.redirect("/profile");
+      res
+        .status(200)
+        .json({
+          status: "success",
+          message: "Registro exitoso",
+          user: req.user,
+        });
     });
   }
 );
 
 router.get("/failregister", (req, res) =>
-  res.send({ error: "Registro fallido" })
+  res
+    .status(400)
+    .json({
+      error:
+        "Registro fallido. El usuario ya podría existir o falta información.",
+    })
 );
 
 router.post(
@@ -61,19 +74,23 @@ router.post(
     res
       .cookie("jwt", token, { httpOnly: true, secure: false }) // Cambia `secure: true` si usas HTTPS
       .status(200)
-      .json({ status: "success", message: "Autenticación exitosa" });
+      .json({ status: "success", message: "Autenticación exitosa", token });
   }
 );
 
-router.get("/failregister", (req, res) =>
-  res.send({ error: "Registro fallido" })
+router.get("/faillogin", (req, res) =>
+  res
+    .status(400)
+    .json({ error: "Login fallido. Por favor, revisa tus credenciales." })
 );
-router.get("/faillogin", (req, res) => res.send({ error: "Login fallido" }));
 
 router.get(
   "/current",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
+    if (!req.user) {
+      return res.status(401).json({ error: "No autorizado, token inválido." });
+    }
     res.status(200).json({ status: "success", user: req.user });
   }
 );
@@ -84,7 +101,7 @@ router.get("/logout", (req, res) => {
     if (err) {
       return res
         .status(500)
-        .send({ status: "error", message: "No se pudo cerrar la sesión" });
+        .json({ status: "error", message: "No se pudo cerrar la sesión" });
     }
     res.redirect("/login");
   });
@@ -103,7 +120,9 @@ router.get(
     req.login(req.user, (err) => {
       if (err) {
         console.error("Error en login:", err);
-        return res.redirect("/login");
+        return res
+          .status(500)
+          .json({ error: "Error al iniciar sesión con GitHub." });
       }
 
       // Asegurar que los datos de GitHub se almacenen en la sesión

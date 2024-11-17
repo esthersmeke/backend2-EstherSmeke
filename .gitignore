@@ -9,3 +9,4 @@ package-lock.json
 public/img/
 products.json
 carts.json
+.DS_Store

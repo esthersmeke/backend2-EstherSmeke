@@ -1,95 +1,41 @@
-import { Router } from 'express';
-import { productDBManager } from '../dao/productDBManager.js';
-import { uploader } from '../utils/multerUtil.js';
+import { Router } from "express";
+import passport from "passport";
+import { uploader } from "../utils/multerUtil.js";
+import { requireAdminRole } from "../middlewares/accessControl.js";
+import * as productController from "../controllers/productController.js";
 
 const router = Router();
-const ProductService = new productDBManager();
 
-router.get('/', async (req, res) => {
-    const result = await ProductService.getAllProducts(req.query);
+// Ruta para obtener todos los productos
+router.get("/", productController.getAllProducts);
 
-    res.send({
-        status: 'success',
-        payload: result
-    });
-});
+// Ruta para obtener un producto por ID
+router.get("/:pid", productController.getProductByID);
 
-router.get('/:pid', async (req, res) => {
+// Ruta para crear un nuevo producto
+router.post(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  requireAdminRole,
+  uploader.array("thumbnails", 3),
+  productController.createProduct
+);
 
-    try {
-        const result = await ProductService.getProductByID(req.params.pid);
-        res.send({
-            status: 'success',
-            payload: result
-        });
-    } catch (error) {
-        res.status(400).send({
-            status: 'error',
-            message: error.message
-        });
-    }
-});
+// Ruta para actualizar un producto
+router.put(
+  "/:pid",
+  passport.authenticate("jwt", { session: false }),
+  requireAdminRole,
+  uploader.array("thumbnails", 3),
+  productController.updateProduct
+);
 
-router.post('/', uploader.array('thumbnails', 3), async (req, res) => {
-
-    if (req.files) {
-        req.body.thumbnails = [];
-        req.files.forEach((file) => {
-            req.body.thumbnails.push(file.path);
-        });
-    }
-
-    try {
-        const result = await ProductService.createProduct(req.body);
-        res.send({
-            status: 'success',
-            payload: result
-        });
-    } catch (error) {
-        res.status(400).send({
-            status: 'error',
-            message: error.message
-        });
-    }
-});
-
-router.put('/:pid', uploader.array('thumbnails', 3), async (req, res) => {
-
-    if (req.files) {
-        req.body.thumbnails = [];
-        req.files.forEach((file) => {
-            req.body.thumbnails.push(file.filename);
-        });
-    }
-
-    try {
-        const result = await ProductService.updateProduct(req.params.pid, req.body);
-        res.send({
-            status: 'success',
-            payload: result
-        });
-    } catch (error) {
-        res.status(400).send({
-            status: 'error',
-            message: error.message
-        });
-    }
-});
-
-router.delete('/:pid', async (req, res) => {
-
-    try {
-        const result = await ProductService.deleteProduct(req.params.pid);
-        res.send({
-            status: 'success',
-            payload: result
-        });
-    } catch (error) {
-        res.status(400).send({
-            status: 'error',
-            message: error.message
-        });
-    }
-});
+// Ruta para eliminar un producto
+router.delete(
+  "/:pid",
+  passport.authenticate("jwt", { session: false }),
+  requireAdminRole,
+  productController.deleteProduct
+);
 
 export default router;

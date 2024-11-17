@@ -9,17 +9,22 @@ import bodyParser from "body-parser";
 import { engine } from "express-handlebars";
 import sessionsRouter from "./routes/api/sessionsRouter.js";
 import viewsRouter from "./routes/viewsRouter.js";
-import bcrypt from "bcryptjs";
-import User from "./dao/models/userModel.js";
+import { createAdminUser } from "./config/adminSetup.js";
+import productRouter from "./routes/productRouter.js";
+import cartRouter from "./routes/cartRouter.js";
+import dotenv from "dotenv";
 
-process.loadEnvFile();
+dotenv.config(); // Esto carga las variables de entorno desde .env
+console.log("Node Environment:", process.env.NODE_ENV); // Verifica si está cargando NODE_ENV
+console.log("JWT Secret:", process.env.JWT_SECRET); // Verifica si está cargando JWT_SECRET
+
 const app = express();
 const PORT = process.env.PORT;
 
 // Configuración de conexión a MongoDB Atlas
 mongoose
   .connect(
-    "mongodb+srv://esthersmeke:coder@cluster0.ayouo.mongodb.net/entrega-final?retryWrites=true&w=majority",
+    `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ayouo.mongodb.net/entrega-final?retryWrites=true&w=majority`,
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -30,32 +35,6 @@ mongoose
     createAdminUser(); // Llamar a la función para crear el usuario admin si no existe
   })
   .catch((error) => console.error("Error al conectar a MongoDB Atlas:", error));
-
-// Función para crear el usuario administrador si no existe
-async function createAdminUser() {
-  try {
-    const existingAdmin = await User.findOne({ email: "adminCoder@coder.com" });
-
-    if (!existingAdmin) {
-      const hashedPassword = bcrypt.hashSync("adminCod3r123", 10);
-      const newAdmin = new User({
-        first_name: "Admin",
-        last_name: "Coder",
-        email: "adminCoder@coder.com",
-        age: 30,
-        password: hashedPassword,
-        role: "admin",
-      });
-
-      await newAdmin.save();
-      console.log("Usuario admin creado exitosamente.");
-    } else {
-      console.log("El usuario admin ya existe.");
-    }
-  } catch (error) {
-    console.error("Error al crear el usuario admin:", error);
-  }
-}
 
 // Configuración de handlebars
 app.engine(
@@ -86,9 +65,12 @@ app.use(
     resave: false,
     saveUninitialized: true,
     store: MongoStore.create({
-      mongoUrl:
-        "mongodb+srv://esthersmeke:coder@cluster0.ayouo.mongodb.net/entrega-final?retryWrites=true&w=majority",
+      mongoUrl: `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ayouo.mongodb.net/entrega-final?retryWrites=true&w=majority`,
     }),
+    cookie: {
+      httpOnly: true, // Esta cookie no debe ser accesible desde JavaScript.
+      secure: process.env.NODE_ENV === "development", // Asegúrate de que solo en producción sea segura.
+    },
   })
 );
 
@@ -100,5 +82,7 @@ app.use(passport.session());
 // Configuración de rutas
 app.use("/api/sessions", sessionsRouter);
 app.use("/", viewsRouter);
+app.use("/api/products", productRouter);
+app.use("/api/carts", cartRouter);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

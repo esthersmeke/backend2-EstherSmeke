@@ -68,9 +68,9 @@ const initializePassport = () => {
   passport.use(
     new GitHubStrategy(
       {
-        clientID: "Iv23lidnoRx7hBFgSOAM",
-        clientSecret: "b127d0144c6a761b246decb162d767fc9386289e",
-        callbackURL: "http://localhost:8080/api/sessions/github/callback",
+        clientID: process.env.GITHUB_CLIENT_ID, // Se reemplaza el valor hardcodeado por una variable de entorno
+        clientSecret: process.env.GITHUB_CLIENT_SECRET, // Se reemplaza por una variable de entorno
+        callbackURL: process.env.GITHUB_CALLBACK_URL, // Se reemplaza por una variable de entorno
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
@@ -95,11 +95,13 @@ const initializePassport = () => {
       }
     )
   );
-
   const cookieExtractor = (req) => {
     let token = null;
     if (req && req.cookies) {
-      token = req.cookies["jwt"]; // Cambia 'jwt' por el nombre que le hayas dado a la cookie
+      token = req.cookies["currentUser"]; // Asegúrate de que coincide con el nombre de la cookie
+      console.log("Token extraído de la cookie 'currentUser':", token); // Log para depuración
+    } else {
+      console.log("No se encontró la cookie 'currentUser'.");
     }
     return token;
   };
@@ -109,17 +111,26 @@ const initializePassport = () => {
     new JwtStrategy(
       {
         jwtFromRequest: cookieExtractor,
-        secretOrKey: process.env.JWT_SECRET, // Clave secreta desde .env
+        secretOrKey: process.env.JWT_SECRET,
       },
       async (jwt_payload, done) => {
+        console.log("JWT Payload decodificado:", jwt_payload); // Log para depuración
+        console.log(
+          `JWT Payload: ${JSON.stringify(
+            jwt_payload
+          )}, Tiempo actual: ${Math.floor(Date.now() / 1000)}`
+        );
         try {
           const user = await User.findById(jwt_payload.id);
           if (user) {
+            console.log("Usuario encontrado:", user); // Confirma si el usuario fue encontrado
             return done(null, user);
           } else {
+            console.log("Usuario no encontrado con el ID:", jwt_payload.id);
             return done(null, false);
           }
         } catch (error) {
+          console.error("Error al procesar el JWT:", error);
           return done(error, false);
         }
       }

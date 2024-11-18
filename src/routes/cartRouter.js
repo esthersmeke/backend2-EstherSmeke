@@ -1,46 +1,62 @@
-import { Router } from "express";
+import express from "express";
+import {
+  getProductsFromCartByID,
+  createCart,
+  addProductToCart,
+  updateProductQuantity,
+  deleteProductFromCart,
+  clearCart,
+} from "../controllers/cartController.js";
 import passport from "passport";
-import { requireUserOrAdminRole } from "../middlewares/accessControl.js";
-import * as cartController from "../controllers/cartController.js";
+import { authorizeRole } from "../middlewares/accessControl.js";
 
-const router = Router();
+const router = express.Router();
 
-// Ruta para obtener los productos de un carrito por ID
-router.get("/:cid", cartController.getProductsFromCartByID);
+// Ruta para obtener los productos de un carrito por ID (autenticación opcional)
+router.get(
+  "/:cid",
+  passport.authenticate("jwt", { session: false }),
+  getProductsFromCartByID
+);
 
-// Ruta para crear un nuevo carrito
-router.post("/", cartController.createCart);
+// Ruta para crear un nuevo carrito (solo usuarios)
+router.post(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  authorizeRole("user"),
+  createCart
+);
 
-// Ruta para agregar un producto a un carrito
+// Ruta para agregar un producto a un carrito (solo usuarios)
 router.post(
   "/:cid/product/:pid",
   passport.authenticate("jwt", { session: false }),
-  requireUserOrAdminRole,
-  cartController.addProductToCart
+  authorizeRole("user"),
+  addProductToCart
 );
 
-// Ruta para actualizar la cantidad de un producto en el carrito
+// Ruta para actualizar la cantidad de un producto en el carrito (solo usuarios)
 router.put(
   "/:cid/product/:pid",
   passport.authenticate("jwt", { session: false }),
-  requireUserOrAdminRole,
-  cartController.updateProductQuantity
+  authorizeRole("user"),
+  updateProductQuantity
 );
 
-// Ruta para eliminar un producto de un carrito
+// Ruta para eliminar un producto de un carrito (solo usuarios)
 router.delete(
   "/:cid/product/:pid",
   passport.authenticate("jwt", { session: false }),
-  requireUserOrAdminRole,
-  cartController.deleteProductFromCart
+  authorizeRole("user"),
+  deleteProductFromCart
 );
 
-// Ruta para vaciar un carrito
+// Ruta para vaciar un carrito (solo usuarios)
 router.delete(
   "/:cid",
   passport.authenticate("jwt", { session: false }),
-  requireUserOrAdminRole,
-  cartController.clearCart
+  authorizeRole("user"),
+  clearCart
 );
 
 export default router;

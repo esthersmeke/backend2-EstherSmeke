@@ -2,35 +2,32 @@ import { Router } from "express";
 import {
   isAuthenticated,
   isNotAuthenticated,
-  requireAdminRole,
-  requireUserOrAdminRole,
 } from "../middlewares/accessControl.js";
 
 const router = Router();
 
-// Página de inicio de sesión
+// Página de inicio de sesión (solo para usuarios no autenticados)
 router.get("/login", isNotAuthenticated, (req, res) => res.render("login"));
 
-// Página de registro
+// Página de registro (solo para usuarios no autenticados)
 router.get("/register", isNotAuthenticated, (req, res) =>
   res.render("register")
 );
 
-// Ruta protegida de perfil
+// Página de perfil (solo para usuarios autenticados)
 router.get("/profile", isAuthenticated, (req, res) => {
-  console.log("Usuario en sesión:", req.session?.user); // Verificar sesión
-  res.render("profile", { user: req.session?.user }); // Renderiza la vista de perfil
+  res.render("profile", { user: req.user }); // Renderiza la vista con los datos del usuario autenticado
 });
 
 // Ruta de cierre de sesión
 router.get("/logout", (req, res) => {
-  req.session.destroy((err) => {
+  req.logout((err) => {
     if (err) {
       return res
         .status(500)
         .send({ status: "error", message: "No se pudo cerrar la sesión" });
     }
-    res.clearCookie("jwt"); // Limpia la cookie JWT si existe
+    res.clearCookie("currentUser"); // Limpia la cookie JWT si existe
     res.redirect("/login"); // Redirige a la página de inicio de sesión
   });
 });

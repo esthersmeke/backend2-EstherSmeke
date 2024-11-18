@@ -16,7 +16,7 @@ export const create = async (userData) => {
 // Buscar un usuario por email
 export const findByEmail = async (email) => {
   try {
-    return await User.findOne({ email });
+    return await User.findOne({ email }).lean(); // Devuelve un objeto plano
   } catch (error) {
     throw new Error("Error al buscar el usuario por email: " + error.message);
   }
@@ -25,7 +25,7 @@ export const findByEmail = async (email) => {
 // Buscar un usuario por ID
 export const findById = async (id) => {
   try {
-    const user = await User.findById(id);
+    const user = await User.findById(id).lean(); // Devuelve un objeto plano
     if (!user) {
       throw new Error("Usuario no encontrado");
     }

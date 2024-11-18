@@ -1,41 +1,40 @@
-import { Router } from "express";
+import express from "express";
+import {
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getAllProducts,
+  getProductByID,
+} from "../controllers/productController.js";
 import passport from "passport";
-import { uploader } from "../utils/multerUtil.js";
-import { requireAdminRole } from "../middlewares/accessControl.js";
-import * as productController from "../controllers/productController.js";
+import { authorizeRole } from "../middlewares/accessControl.js";
 
-const router = Router();
+const router = express.Router();
 
-// Ruta para obtener todos los productos
-router.get("/", productController.getAllProducts);
+// Rutas públicas
+router.get("/", getAllProducts);
+router.get("/:pid", getProductByID);
 
-// Ruta para obtener un producto por ID
-router.get("/:pid", productController.getProductByID);
-
-// Ruta para crear un nuevo producto
+// Rutas protegidas para admin
 router.post(
   "/",
-  passport.authenticate("jwt", { session: false }),
-  requireAdminRole,
-  uploader.array("thumbnails", 3),
-  productController.createProduct
+  passport.authenticate("jwt", { session: false }), // Autenticación con JWT
+  authorizeRole("admin"), // Autorización para administradores
+  createProduct
 );
 
-// Ruta para actualizar un producto
 router.put(
   "/:pid",
-  passport.authenticate("jwt", { session: false }),
-  requireAdminRole,
-  uploader.array("thumbnails", 3),
-  productController.updateProduct
+  passport.authenticate("jwt", { session: false }), // Autenticación con JWT
+  authorizeRole("admin"), // Autorización para administradores
+  updateProduct
 );
 
-// Ruta para eliminar un producto
 router.delete(
   "/:pid",
-  passport.authenticate("jwt", { session: false }),
-  requireAdminRole,
-  productController.deleteProduct
+  passport.authenticate("jwt", { session: false }), // Autenticación con JWT
+  authorizeRole("admin"), // Autorización para administradores
+  deleteProduct
 );
 
 export default router;

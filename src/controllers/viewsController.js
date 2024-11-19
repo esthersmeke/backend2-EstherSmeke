@@ -4,7 +4,8 @@ import UserDTO from "../dto/UserDTO.js";
 
 // Renderizar la página de inicio de sesión
 export const renderLogin = (req, res) => {
-  res.render("login");
+  const { error } = req.query; // Extrae el mensaje de error del query string
+  res.render("login", { error }); // Pasa el mensaje a la vista
 };
 
 // Renderizar la página de registro

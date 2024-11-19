@@ -33,6 +33,15 @@ export const registerUser = async (req, res) => {
     // Redirige al usuario a la vista de productos
     res.redirect("/products");
   } catch (error) {
+    if (req.headers.accept.includes("text/html")) {
+      // Renderizar una vista amigable para el navegador
+      return res.status(400).render("register", {
+        error: "El usuario ya existe. ¿Quieres iniciar sesión?",
+        loginLink: "/login", // Incluye un enlace al login
+      });
+    }
+
+    // Devuelve un JSON para clientes como Postman
     res.status(400).json({ message: error.message });
   }
 };
@@ -75,9 +84,12 @@ export const loginUser = async (req, res) => {
     });
   } catch (error) {
     if (req.headers.accept.includes("text/html")) {
-      return res.status(401).render("login", {
-        error: "Credenciales inválidas. Por favor, intenta de nuevo.",
-      });
+      // Redirigir a /login con un parámetro de error
+      return res.redirect(
+        `/login?error=${encodeURIComponent(
+          "Email o contraseña incorrectos. Por favor, intenta de nuevo o crea una cuenta."
+        )}`
+      );
     }
     res.status(401).json({ message: error.message });
   }

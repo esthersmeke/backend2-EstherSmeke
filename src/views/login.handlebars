@@ -1,11 +1,14 @@
 <div class="login-container box">
   <div class="login-card">
     <h2>Bienvenido de nuevo</h2>
+
+    <!-- Mensaje de error dinámico -->
     {{#if error}}
       <div class="error-message">
         {{error}}
       </div>
     {{/if}}
+
     <form action="/api/sessions/login" method="POST" class="login-form">
       <div class="form-group">
         <label for="email">Correo:</label>

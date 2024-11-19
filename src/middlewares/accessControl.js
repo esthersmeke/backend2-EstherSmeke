@@ -13,7 +13,7 @@ export const isNotAuthenticated = (req, res, next) => {
   if (!req.user) {
     return next();
   }
-  res.redirect("/profile"); // Redirigir a perfil si ya está autenticado
+  res.redirect("/current"); // Redirigir a perfil si ya está autenticado
 };
 
 // Middleware para roles específicos

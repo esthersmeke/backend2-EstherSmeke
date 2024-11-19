@@ -1,7 +1,8 @@
 import * as productService from "../services/productService.js";
 import ProductDTO from "../dto/ProductDTO.js";
+import jwt from "jsonwebtoken";
 
-// Obtener todos los productos
+// Obtener todos los productos (pública)
 export const getAllProducts = async (req, res) => {
   try {
     const products = await productService.getAllProducts(req.query);
@@ -13,14 +14,35 @@ export const getAllProducts = async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      status: "success",
-      payload: products.docs.map((product) => new ProductDTO(product)), // Usar DTO
+    // Verificar si el usuario está autenticado para personalizar la vista
+    let user = null;
+    if (req.cookies && req.cookies.currentUser) {
+      try {
+        const token = req.cookies.currentUser;
+        user = jwt.verify(token, process.env.JWT_SECRET);
+      } catch (error) {
+        console.log("Error al verificar el token:", error.message);
+      }
+    }
+
+    // Si el cliente solicita JSON (Postman u otra API tool)
+    if (req.headers.accept && req.headers.accept.includes("application/json")) {
+      return res.status(200).json({
+        status: "success",
+        payload: products.docs.map((product) => new ProductDTO(product)),
+        user,
+      });
+    }
+
+    // Renderizar vista en caso de navegador
+    res.render("products", {
+      products: products.docs.map((product) => new ProductDTO(product)),
+      user,
     });
   } catch (error) {
     res.status(500).json({
       status: "error",
-      message: "Error interno del servidor: " + error.message,
+      message: "Error al obtener los productos: " + error.message,
     });
   }
 };

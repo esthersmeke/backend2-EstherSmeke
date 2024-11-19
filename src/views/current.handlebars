@@ -1,0 +1,15 @@
+<div class="profile-container box">
+  <div class="profile-card">
+    <h2>Bienvenido, {{user.first_name}}!</h2>
+    <div class="profile-details">
+      <p><strong>Nombre:</strong> {{user.first_name}} {{user.last_name}}</p>
+      <p><strong>Email:</strong> {{user.email}}</p>
+      <p><strong>Edad:</strong> {{user.age}}</p>
+      <p><strong>Rol:</strong> {{user.role}}</p>
+    </div>
+    <div class="profile-actions">
+      <a href="/products" class="button btn-profile">Ver Productos</a>
+      <a href="/logout" class="button btn-logout">Cerrar Sesión</a>
+    </div>
+  </div>
+</div>

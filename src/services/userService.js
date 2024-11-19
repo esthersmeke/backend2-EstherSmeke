@@ -18,8 +18,8 @@ export const register = async (userData) => {
   // Hashear la contraseña
   const hashedPassword = bcrypt.hashSync(password, 10);
 
-  // Crear un nuevo usuario
-  const newUser = { ...restData, password: hashedPassword };
+  // Crear un nuevo usuario con rol predeterminado
+  const newUser = { ...restData, password: hashedPassword, role: "user" };
   return await create(newUser);
 };
 

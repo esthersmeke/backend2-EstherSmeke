@@ -1,69 +1,75 @@
 import * as productRepository from "../repositories/productRepository.js";
-import productModel from "../dao/models/productModel.js"; // Asegúrate de que esta ruta sea correcta
+import productModel from "../dao/models/productModel.js";
+import ProductDTO from "../dto/ProductDTO.js"; // Importa el DTO si es necesario
 
 export const getAllProducts = async (query) => {
   try {
-    // Extracción de parámetros con valores predeterminados
     const { page = 1, limit = 10, sort, order = "asc", ...filters } = query;
 
-    // Validar y configurar la opción de orden
+    // Validación de parámetros
+    if (isNaN(page) || page <= 0) {
+      throw new Error("El parámetro 'page' debe ser un número mayor a 0.");
+    }
+    if (isNaN(limit) || limit <= 0) {
+      throw new Error("El parámetro 'limit' debe ser un número mayor a 0.");
+    }
+
     const sortOption =
       sort === "price" ? { price: order === "desc" ? -1 : 1 } : {};
 
-    // Configuración de paginación y filtros
     const options = {
       page: parseInt(page),
       limit: parseInt(limit),
-      lean: true, // Devuelve objetos JSON en lugar de documentos de Mongoose
+      lean: true,
       sort: sortOption,
     };
 
-    // Realizar la consulta con filtros, paginación y orden
     const products = await productModel.paginate(filters, options);
-    return products;
+
+    // Aplicar DTO antes de devolver los productos
+    return {
+      ...products,
+      docs: products.docs.map((product) => new ProductDTO(product)),
+    };
   } catch (error) {
     throw new Error("Error al obtener los productos: " + error.message);
   }
 };
 
-// Obtener un producto por ID
 export const getProductByID = async (id) => {
   try {
     const product = await productRepository.getProductByID(id);
     if (!product) {
-      throw new Error(`El producto con ID ${id} no existe`);
+      throw new Error("Producto no encontrado o ID inválido.");
     }
-    return product;
+    return new ProductDTO(product); // Aplica el DTO aquí
   } catch (error) {
-    if (error.message.includes("Cast to ObjectId failed")) {
-      throw new Error(`El ID ${id} es inválido`);
-    }
-    throw new Error("El ID del producto es inexistente");
+    throw new Error("Error al obtener el producto: " + error.message);
   }
 };
 
-// Crear un nuevo producto
 export const createProduct = async (productData) => {
   try {
-    return await productRepository.createProduct(productData);
+    const product = await productRepository.createProduct(productData);
+    return new ProductDTO(product); // Aplica el DTO aquí
   } catch (error) {
     throw new Error("Error al crear el producto: " + error.message);
   }
 };
 
-// Actualizar un producto por ID
 export const updateProduct = async (id, productData) => {
   try {
-    return await productRepository.updateProduct(id, productData);
+    const product = await productRepository.updateProduct(id, productData);
+    return new ProductDTO(product); // Aplica el DTO aquí
   } catch (error) {
     throw new Error("Error al actualizar el producto: " + error.message);
   }
 };
 
-// Eliminar un producto por ID
 export const deleteProduct = async (id) => {
   try {
-    return await productRepository.deleteProduct(id);
+    const product = await productRepository.deleteProduct(id);
+    return new ProductDTO(product); // Aplica el DTO aquí
   } catch (error) {
     throw new Error("Error al eliminar el producto: " + error.message);
   }

@@ -11,29 +11,29 @@ import { authorizeRole } from "../middlewares/accessControl.js";
 
 const router = express.Router();
 
-// Rutas públicas
-router.get("/", getAllProducts);
-router.get("/:pid", getProductByID);
+// Rutas públicas: disponibles para todos, autenticados o no
+router.get("/", getAllProducts); // Muestra productos con mensaje opcional para usuarios autenticados
+router.get("/:pid", getProductByID); // Obtiene un producto específico por ID
 
-// Rutas protegidas para admin
+// Rutas protegidas: solo accesibles por usuarios autenticados con rol de administrador
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }), // Autenticación con JWT
-  authorizeRole("admin"), // Autorización para administradores
+  authorizeRole("admin"), // Solo administradores pueden crear productos
   createProduct
 );
 
 router.put(
   "/:pid",
   passport.authenticate("jwt", { session: false }), // Autenticación con JWT
-  authorizeRole("admin"), // Autorización para administradores
+  authorizeRole("admin"), // Solo administradores pueden actualizar productos
   updateProduct
 );
 
 router.delete(
   "/:pid",
   passport.authenticate("jwt", { session: false }), // Autenticación con JWT
-  authorizeRole("admin"), // Autorización para administradores
+  authorizeRole("admin"), // Solo administradores pueden eliminar productos
   deleteProduct
 );
 

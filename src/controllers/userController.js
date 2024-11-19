@@ -5,12 +5,33 @@ import UserDTO from "../dto/UserDTO.js";
 // Registro de usuario
 export const registerUser = async (req, res) => {
   try {
+    // Llama al servicio de registro
     const newUser = await register(req.body);
 
-    res.status(201).json({
-      message: "Usuario registrado exitosamente",
-      user: new UserDTO(newUser),
+    // Convierte el usuario en un DTO
+    const userDTO = new UserDTO(newUser);
+
+    // Genera el token JWT
+    const token = jwt.sign(
+      {
+        id: userDTO.id,
+        first_name: userDTO.first_name,
+        last_name: userDTO.last_name,
+        email: userDTO.email,
+        role: userDTO.role,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Configura la cookie con el token
+    res.cookie("currentUser", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
     });
+
+    // Redirige al usuario a la vista de productos
+    res.redirect("/products");
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -20,28 +41,44 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const user = await login(req.body.email, req.body.password);
+    const userDTO = new UserDTO(user);
 
     // Crear payload del JWT
     const token = jwt.sign(
       {
-        id: user._id,
-        email: user.email,
-        role: user.role,
+        id: userDTO.id,
+        first_name: userDTO.first_name,
+        last_name: userDTO.last_name,
+        email: userDTO.email,
+        role: userDTO.role,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
+    // Almacenar JWT como cookie
     res.cookie("currentUser", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
     });
 
+    // Si el cliente es un navegador, redirige a /products
+    if (req.headers.accept.includes("text/html")) {
+      req.session.user = userDTO; // Almacena el DTO en la sesión
+      return res.redirect("/products");
+    }
+
+    // Si el cliente es Postman (o similar), devuelve un JSON con el DTO
     res.status(200).json({
       message: "Login exitoso",
-      user: new UserDTO(user),
+      user: userDTO,
     });
   } catch (error) {
+    if (req.headers.accept.includes("text/html")) {
+      return res.status(401).render("login", {
+        error: "Credenciales inválidas. Por favor, intenta de nuevo.",
+      });
+    }
     res.status(401).json({ message: error.message });
   }
 };

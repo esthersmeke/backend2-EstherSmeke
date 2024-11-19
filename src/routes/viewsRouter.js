@@ -1,5 +1,13 @@
 import { Router } from "express";
 import {
+  renderLogin,
+  renderRegister,
+  renderCurrent,
+  renderProducts,
+  handleLogout,
+} from "../controllers/viewsController.js";
+
+import {
   isAuthenticated,
   isNotAuthenticated,
 } from "../middlewares/accessControl.js";
@@ -7,29 +15,18 @@ import {
 const router = Router();
 
 // Página de inicio de sesión (solo para usuarios no autenticados)
-router.get("/login", isNotAuthenticated, (req, res) => res.render("login"));
+router.get("/login", isNotAuthenticated, renderLogin);
 
 // Página de registro (solo para usuarios no autenticados)
-router.get("/register", isNotAuthenticated, (req, res) =>
-  res.render("register")
-);
+router.get("/register", isNotAuthenticated, renderRegister);
 
-// Página de perfil (solo para usuarios autenticados)
-router.get("/profile", isAuthenticated, (req, res) => {
-  res.render("profile", { user: req.user }); // Renderiza la vista con los datos del usuario autenticado
-});
+// Página actual (perfil) para usuarios autenticados
+router.get("/current", isAuthenticated, renderCurrent);
 
 // Ruta de cierre de sesión
-router.get("/logout", (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      return res
-        .status(500)
-        .send({ status: "error", message: "No se pudo cerrar la sesión" });
-    }
-    res.clearCookie("currentUser"); // Limpia la cookie JWT si existe
-    res.redirect("/login"); // Redirige a la página de inicio de sesión
-  });
-});
+router.get("/logout", handleLogout);
+
+// Página de productos (pública, pero personalizada si el usuario está autenticado)
+router.get("/products", renderProducts);
 
 export default router;

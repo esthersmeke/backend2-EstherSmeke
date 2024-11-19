@@ -6,32 +6,44 @@ const productCollection = "products";
 const productSchema = mongoose.Schema({
   title: {
     type: String,
-    require: true,
+    required: true, // Cambiamos a `required` para mayor claridad
+    trim: true, // Elimina espacios en blanco al inicio y final
   },
   description: {
     type: String,
-    require: true,
+    required: true,
+    trim: true,
   },
   code: {
     type: String,
-    require: true,
+    required: true,
+    unique: true, // Garantiza que el campo sea único en MongoDB
+    trim: true,
   },
   price: {
     type: Number,
-    require: true,
+    required: true,
+    validate: {
+      validator: (value) => value >= 0, // Asegura que el precio sea positivo
+      message: "El precio debe ser un número positivo.",
+    },
   },
   stock: {
     type: Number,
-    require: true,
+    required: true,
+    validate: {
+      validator: (value) => Number.isInteger(value) && value >= 0, // Solo números enteros positivos
+      message: "El stock debe ser un número entero positivo.",
+    },
   },
   category: {
     type: String,
-    require: true,
+    required: true,
+    trim: true,
   },
   thumbnails: {
-    type: Array,
-    require: false,
-    default: [],
+    type: [String],
+    default: [], // Si no se provee, inicializa como array vacío
   },
 });
 

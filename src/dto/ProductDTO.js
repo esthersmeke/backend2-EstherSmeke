@@ -1,6 +1,6 @@
 class ProductDTO {
   constructor(product) {
-    this.id = product._id; // Convierte el ID de MongoDB
+    this._id = product._id;
     this.title = product.title;
     this.description = product.description;
     this.price = product.price;

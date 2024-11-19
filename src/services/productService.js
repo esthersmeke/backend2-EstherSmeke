@@ -1,6 +1,7 @@
 import * as productRepository from "../repositories/productRepository.js";
 import productModel from "../dao/models/productModel.js";
 import ProductDTO from "../dto/ProductDTO.js"; // Importa el DTO si es necesario
+import { faker } from "@faker-js/faker";
 
 export const getAllProducts = async (query) => {
   try {
@@ -50,8 +51,24 @@ export const getProductByID = async (id) => {
 
 export const createProduct = async (productData) => {
   try {
-    const product = await productRepository.createProduct(productData);
-    return new ProductDTO(product); // Aplica el DTO aquí
+    // Generar datos con Faker.js si no se proporciona en el body
+    const generatedProduct = {
+      title: productData.title || faker.commerce.productName(),
+      description:
+        productData.description || faker.commerce.productDescription(),
+      code: productData.code || faker.string.uuid(), // Genera un UUID único
+      price:
+        productData.price ||
+        parseFloat(faker.commerce.price({ min: 1, max: 1000, dec: 2 })), // Precio con 2 decimales
+      stock: productData.stock || faker.number.int({ min: 1, max: 100 }), // Stock entre 1 y 100
+      category: productData.category || faker.commerce.department(),
+      thumbnails: productData.thumbnails || [faker.image.url()],
+    };
+
+    // Validar y guardar el producto en el repositorio
+    const product = await productRepository.createProduct(generatedProduct);
+
+    return new ProductDTO(product); // Devuelve el producto en formato DTO
   } catch (error) {
     throw new Error("Error al crear el producto: " + error.message);
   }

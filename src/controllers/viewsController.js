@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import * as productService from "../services/productService.js";
 import UserDTO from "../dto/UserDTO.js";
+import ProductDTO from "../dto/ProductDTO.js";
 
 // Renderizar la página de inicio de sesión
 export const renderLogin = (req, res) => {
@@ -40,7 +41,7 @@ export const handleLogout = (req, res) => {
     res.redirect("/login");
   });
 };
-// Renderizar la página de productos (pública, pero personalizada si el usuario está autenticado)
+// Renderizar la página de productos para el navegador
 export const renderProducts = async (req, res) => {
   try {
     let userDTO = null;
@@ -50,24 +51,24 @@ export const renderProducts = async (req, res) => {
       try {
         const token = req.cookies.currentUser;
         const decodedUser = jwt.verify(token, process.env.JWT_SECRET);
-
-        console.log("Decoded JWT:", decodedUser); // Log para verificar qué contiene el token
-
-        // Procesar el usuario con el DTO
-        userDTO = new UserDTO(decodedUser);
-
-        console.log("UserDTO generado:", userDTO); // Log para confirmar el DTO
+        userDTO = new UserDTO(decodedUser); // Procesar el usuario con el DTO
       } catch (error) {
-        console.log("Error al verificar el token:", error.message);
+        if (error.name === "TokenExpiredError") {
+          console.log("El token ha expirado, limpiando cookie.");
+          res.clearCookie("currentUser"); // Limpia la cookie si el token expiró
+        } else {
+          console.log("Error al verificar el token:", error.message);
+        }
       }
     }
 
+    // Obtener los productos desde el servicio
     const products = await productService.getAllProducts(req.query);
 
     // Renderizar la vista de productos
     res.render("index", {
-      products: products.docs, // Aquí puedes aplicar un DTO si lo necesitas
-      user: userDTO, // Pasar los datos del usuario autenticado con DTO, si aplica
+      products: products.docs.map((product) => new ProductDTO(product)), // DTO para los productos
+      user: userDTO, // Usuario autenticado (si aplica), o null
     });
   } catch (error) {
     console.error("Error al cargar los productos:", error);

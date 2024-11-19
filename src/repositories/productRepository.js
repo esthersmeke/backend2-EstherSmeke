@@ -29,8 +29,9 @@ export const createProduct = async (productData) => {
     const newProduct = await productModel.create(productData);
     return newProduct;
   } catch (error) {
-    if (error.name === "ValidationError") {
-      throw new Error("Datos inválidos para el producto: " + error.message);
+    if (error.code === 11000) {
+      // Código de error de MongoDB para duplicados
+      throw new Error("El código del producto ya existe. Intenta con otro.");
     }
     throw new Error("Error al crear el producto: " + error.message);
   }

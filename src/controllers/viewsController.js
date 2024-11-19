@@ -13,9 +13,19 @@ export const renderRegister = (req, res) => {
   res.render("register");
 };
 
-// Renderizar la página actual (perfil) para usuarios autenticados
 export const renderCurrent = (req, res) => {
-  res.render("current", { user: req.user });
+  try {
+    if (!req.user) {
+      return res.redirect("/login"); // Asegurarse de redirigir si no hay usuario
+    }
+
+    res.render("current", {
+      user: req.user, // Pasar los datos del usuario autenticado
+    });
+  } catch (error) {
+    console.error("Error al renderizar el perfil:", error);
+    res.status(500).send("Error interno del servidor.");
+  }
 };
 
 // Manejar el cierre de sesión

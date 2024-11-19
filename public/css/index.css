@@ -1,355 +1,173 @@
-/* General */
+/* General Styles */
 * {
-  background-color: whitesmoke;
-  color: black;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Georgia", serif;
 }
 
-hr {
-  width: 100%;
+body {
+  background-color: #f0f0f0;
+  color: #444;
 }
 
+h1,
+h2,
 h3 {
   text-align: center;
 }
 
-input,
-button,
-.button {
+a {
+  text-decoration: none;
+  color: #333;
+}
+
+button {
   cursor: pointer;
-  padding: 5px;
+  padding: 10px 20px;
   border-radius: 5px;
-  text-decoration: none;
-  border: none; /* Elimina bordes predeterminados */
-  box-shadow: none; /* Elimina sombras predeterminadas */
-}
-input:focus {
-  outline: none; /* Elimina el borde azul predeterminado */
-  border-color: #b8a589; /* Color de borde personalizado */
-  box-shadow: 0 0 6px #b8a589; /* Sombra suave */
-  background-color: #fdf9f0; /* Ajuste opcional: color de fondo */
-}
-
-/* Ajuste adicional para navegadores que aplican focus visible */
-input:-webkit-autofill,
-input:autofill {
-  box-shadow: 0 0 6px #b8a589 !important; /* Forzar sombra personalizada */
-  -webkit-box-shadow: 0 0 6px #b8a589 !important;
-}
-
-input:focus,
-button:focus {
-  outline: none; /* Elimina el borde azul predeterminado */
-  border: 2px solid #b8a589; /* Bordes suaves personalizados */
-  box-shadow: 0 0 6px #b8a589; /* Sombra ligera */
-}
-
-input:-webkit-autofill {
-  box-shadow: 0 0 0px 1000px #f8f4ec inset;
-  -webkit-text-fill-color: #4a4a4a;
-}
-
-/* Containers */
-.box {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.products-box {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
-.product-card {
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  margin: 5px;
-  border: 1px solid white;
-}
-
-.products-form form {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-}
-
-.products-form input {
-  margin-bottom: 5px;
-}
-
-.footer {
-  margin-top: 10px;
-}
-
-.view-cart {
-  display: none;
-  position: absolute;
-  right: 10px;
-  top: 15px;
-}
-
-.view-products {
-  display: block;
-  position: absolute;
-  left: 10px;
-  top: 15px;
-}
-
-#button-create,
-#button-products {
-  background: #1da81d;
-}
-
-#button-delete {
-  background: #d51515;
-}
-
-#button-paginate {
-  background: #646464;
-}
-
-#button-cart {
-  background: #ffa500;
-}
-
-/* Login styles */
-body {
-  font-family: "Georgia", serif;
-  background-color: #f8f4ec;
-  color: #4a4a4a;
-  margin: 0;
-  padding: 0;
-}
-
-.login-container {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.login-card {
-  background: #fffdfa;
-  border: 1px solid #d4c5a1;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 320px;
-  text-align: center;
-}
-
-.login-card h2 {
-  font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-  margin-bottom: 20px;
-  font-size: 1.8rem;
-  color: #705e4d;
-}
-
-.login-form .form-group {
-  margin-bottom: 15px;
-  text-align: left;
-}
-
-.login-form label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #705e4d;
-}
-
-.login-form input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #d4c5a1;
-  border-radius: 5px;
-  background-color: #f8f4ec;
-  font-family: "Georgia", serif;
-}
-
-.btn-login {
-  background: #b8a589;
-  color: #fff;
-  padding: 10px;
   border: none;
-  width: 100%;
-  border-radius: 5px;
-  font-weight: bold;
-  transition: background 0.3s;
-}
-
-.btn-login:hover {
-  background: #9a876f;
-}
-
-.login-links {
-  margin-top: 15px;
-}
-
-.login-links .link {
-  display: block;
-  margin: 5px 0;
-  text-decoration: none;
-  color: #9a876f;
-  font-weight: bold;
-  transition: color 0.3s;
-}
-
-.login-links .link:hover {
-  color: #705e4d;
-}
-
-/* Register styles */
-.register-container {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.register-card {
-  background: #fffdfa;
-  border: 1px solid #d4c5a1;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 320px;
-  text-align: center;
-}
-
-.register-card h2 {
-  font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-  margin-bottom: 20px;
-  font-size: 1.8rem;
-  color: #705e4d;
-}
-
-.register-form .form-group {
-  margin-bottom: 15px;
-  text-align: left;
-}
-
-.register-form label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #705e4d;
-}
-
-.register-form input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #d4c5a1;
-  border-radius: 5px;
-  background-color: #f8f4ec;
-  font-family: "Georgia", serif;
-}
-
-.btn-register {
-  background: #b8a589;
+  background-color: #333;
   color: #fff;
-  padding: 10px;
-  border: none;
-  width: 100%;
-  border-radius: 5px;
   font-weight: bold;
-  transition: background 0.3s;
 }
 
-.btn-register:hover {
-  background: #9a876f;
+button:hover {
+  background-color: #222;
 }
 
-.register-links {
-  margin-top: 15px;
+/* Container Styles */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.register-links .link {
-  display: block;
-  margin: 5px 0;
-  text-decoration: none;
-  color: #9a876f;
-  font-weight: bold;
-  transition: color 0.3s;
-}
-
-.register-links .link:hover {
-  color: #705e4d;
-}
-
-/* Current styles */
-.profile-container {
-  min-height: 100vh;
+.flex-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 
-.profile-card {
-  background: #fffdfa;
-  border: 1px solid #d4c5a1;
+/* Header Styles */
+.header {
+  background-color: #fff;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 320px;
-  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.profile-card h2 {
-  font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-  margin-bottom: 20px;
-  font-size: 1.8rem;
-  color: #705e4d;
+.welcome-message {
+  font-size: 1.8em;
+  margin-bottom: 10px;
 }
 
-.profile-details {
-  text-align: left;
-  margin-bottom: 20px;
-}
-
-.profile-details p {
-  font-family: "Georgia", serif;
-  font-size: 1rem;
-  margin: 5px 0;
-  color: #4d4034;
-}
-
-.profile-actions {
+.user-actions {
   display: flex;
-  flex-direction: column;
   gap: 10px;
 }
 
-.btn-profile {
-  background: #b8a589;
-  color: #fff;
-  padding: 10px;
-  border: none;
+/* Product Card Styles */
+.products-box {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.product-card {
+  border: 1px solid #ddd;
   border-radius: 5px;
-  font-weight: bold;
-  text-decoration: none;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   text-align: center;
-  transition: background 0.3s;
 }
 
-.btn-profile:hover {
-  background: #9a876f;
+.product-card h3 {
+  font-size: 1.2em;
+  margin-bottom: 10px;
 }
 
+.product-card p {
+  margin-bottom: 5px;
+}
+
+/* Login/Register/Profile Styles */
+.login-container,
+.register-container,
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.login-card,
+.register-card,
+.profile-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 320px;
+  text-align: center;
+}
+
+.login-card h2,
+.register-card h2,
+.profile-card h2 {
+  font-size: 1.8em;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: start;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.btn-login,
+.btn-register,
+.btn-profile,
 .btn-logout {
-  background: #d51515;
-  color: #fff;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  font-weight: bold;
-  text-decoration: none;
-  text-align: center;
-  transition: background 0.3s;
+  width: 100%;
+  margin-top: 10px;
 }
 
-.btn-logout:hover {
-  background: #a21010;
+.login-links,
+.register-links {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.link {
+  display: inline-block;
+  margin: 0 5px;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .products-box {
+    grid-template-columns: 1fr;
+  }
 }

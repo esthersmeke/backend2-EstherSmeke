@@ -1,7 +1,22 @@
-// Middleware para verificar si el usuario está autenticado con JWT
+import jwt from "jsonwebtoken";
+
 export const isAuthenticated = (req, res, next) => {
-  if (req.user) {
-    return next();
+  if (req.cookies && req.cookies.currentUser) {
+    try {
+      const decoded = jwt.verify(
+        req.cookies.currentUser,
+        process.env.JWT_SECRET
+      );
+      req.user = decoded; // Agregar el usuario decodificado al objeto req
+      return next();
+    } catch (error) {
+      console.log("Error al verificar el token:", error.message);
+    }
+  }
+
+  // Si no está autenticado, redirige al login en caso de HTML o responde con JSON
+  if (req.headers.accept && req.headers.accept.includes("text/html")) {
+    return res.redirect("/login");
   }
   res
     .status(401)

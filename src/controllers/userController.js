@@ -18,6 +18,7 @@ export const registerUser = async (req, res) => {
         first_name: userDTO.first_name,
         last_name: userDTO.last_name,
         email: userDTO.email,
+        age: userDTO.age,
         role: userDTO.role,
       },
       process.env.JWT_SECRET,
@@ -30,7 +31,15 @@ export const registerUser = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
     });
 
-    // Redirige al usuario a la vista de productos
+    // Maneja respuesta según el cliente
+    if (req.headers.accept.includes("application/json")) {
+      return res.status(201).json({
+        message: "Usuario registrado con éxito",
+        user: userDTO,
+      });
+    }
+
+    // Redirige al usuario a la vista de productos para navegadores
     res.redirect("/products");
   } catch (error) {
     if (req.headers.accept.includes("text/html")) {
@@ -59,6 +68,7 @@ export const loginUser = async (req, res) => {
         first_name: userDTO.first_name,
         last_name: userDTO.last_name,
         email: userDTO.email,
+        age: userDTO.age,
         role: userDTO.role,
       },
       process.env.JWT_SECRET,
@@ -101,18 +111,31 @@ export const getUserProfile = async (req, res) => {
     const token = req.cookies.currentUser;
 
     if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
+      if (req.headers.accept.includes("application/json")) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      return res.redirect("/login");
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await getProfile(decoded.id);
 
-    res.status(200).json({
-      message: "Perfil obtenido con éxito",
+    if (req.headers.accept.includes("application/json")) {
+      return res.status(200).json({
+        message: "Perfil obtenido con éxito",
+        user: new UserDTO(user),
+      });
+    }
+
+    // Renderiza la vista para el navegador
+    res.render("current", {
       user: new UserDTO(user),
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    if (req.headers.accept.includes("application/json")) {
+      return res.status(500).json({ message: error.message });
+    }
+    res.status(500).render("error", { message: "Error interno del servidor" });
   }
 };
 

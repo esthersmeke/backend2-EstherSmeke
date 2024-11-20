@@ -75,3 +75,18 @@ export const renderProducts = async (req, res) => {
     res.status(500).send("Error al cargar los productos.");
   }
 };
+
+export const renderResetPasswordView = (req, res) => {
+  const { token } = req.params;
+
+  try {
+    // Verificar el token
+    jwt.verify(token, process.env.JWT_SECRET);
+
+    // Servir la vista de restablecimiento
+    res.render("resetPassword", { token });
+  } catch (error) {
+    console.error("Token de recuperación inválido o expirado:", error.message);
+    res.render("resetPasswordExpired");
+  }
+};

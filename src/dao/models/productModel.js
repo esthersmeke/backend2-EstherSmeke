@@ -3,28 +3,32 @@ import mongoosePaginate from "mongoose-paginate-v2";
 
 const productCollection = "products";
 
-const productSchema = mongoose.Schema({
+const productSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true, // Cambiamos a `required` para mayor claridad
-    trim: true, // Elimina espacios en blanco al inicio y final
+    required: true,
+    trim: true,
+    minlength: 5, // Longitud mínima
+    maxlength: 100, // Longitud máxima
   },
   description: {
     type: String,
     required: true,
     trim: true,
+    minlength: 10, // Longitud mínima
+    maxlength: 500, // Longitud máxima
   },
   code: {
     type: String,
     required: true,
-    unique: true, // Garantiza que el campo sea único en MongoDB
+    unique: true,
     trim: true,
   },
   price: {
     type: Number,
     required: true,
     validate: {
-      validator: (value) => value >= 0, // Asegura que el precio sea positivo
+      validator: (value) => value >= 0,
       message: "El precio debe ser un número positivo.",
     },
   },
@@ -32,7 +36,7 @@ const productSchema = mongoose.Schema({
     type: Number,
     required: true,
     validate: {
-      validator: (value) => Number.isInteger(value) && value >= 0, // Solo números enteros positivos
+      validator: (value) => Number.isInteger(value) && value >= 0,
       message: "El stock debe ser un número entero positivo.",
     },
   },
@@ -43,7 +47,14 @@ const productSchema = mongoose.Schema({
   },
   thumbnails: {
     type: [String],
-    default: [], // Si no se provee, inicializa como array vacío
+    default: [],
+    validate: {
+      validator: (array) =>
+        array.every(
+          (url) => /^https?:\/\/[^\s$.?#].[^\s]*$/.test(url) // Validación básica de URL
+        ),
+      message: "Todos los thumbnails deben ser URLs válidas.",
+    },
   },
 });
 

@@ -1,11 +1,11 @@
 class UserDTO {
   constructor(user) {
-    this.id = user.id || user._id;
-    this.first_name = user.first_name;
-    this.last_name = user.last_name;
-    this.email = user.email;
-    this.age = user.age;
-    this.role = user.role;
+    this.id = user.id || user._id; // Asegura que siempre haya un ID
+    this.first_name = user.first_name || "Nombre no disponible"; // Valor por defecto
+    this.last_name = user.last_name || "Apellido no disponible"; // Valor por defecto
+    this.email = user.email || "Email no disponible"; // Valor por defecto
+    this.age = user.age || "Edad no disponible"; // Valor por defecto
+    this.role = user.role || "user"; // Valor por defecto
   }
 }
 

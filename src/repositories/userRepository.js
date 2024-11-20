@@ -1,36 +1,47 @@
-import User from "../dao/models/userModel.js";
+import userModel from "../dao/models/userModel.js";
 
-// Crear un usuario
-export const create = async (userData) => {
-  try {
-    const newUser = new User(userData);
-    return await newUser.save();
-  } catch (error) {
-    if (error.code === 11000) {
-      throw new Error("El correo electrónico ya está registrado.");
+class UserRepository {
+  async createUser(userData) {
+    try {
+      return await userModel.create(userData);
+    } catch (error) {
+      throw new Error("Error al crear el usuario: " + error.message);
     }
-    throw new Error("Error al crear el usuario: " + error.message);
   }
-};
 
-// Buscar un usuario por email
-export const findByEmail = async (email) => {
-  try {
-    return await User.findOne({ email }).lean(); // Devuelve un objeto plano
-  } catch (error) {
-    throw new Error("Error al buscar el usuario por email: " + error.message);
-  }
-};
-
-// Buscar un usuario por ID
-export const findById = async (id) => {
-  try {
-    const user = await User.findById(id).lean(); // Devuelve un objeto plano
-    if (!user) {
-      throw new Error("Usuario no encontrado");
+  async findByEmail(email) {
+    try {
+      return await userModel.findOne({ email }).lean();
+    } catch (error) {
+      throw new Error("Error al buscar el usuario por email: " + error.message);
     }
-    return user;
-  } catch (error) {
-    throw new Error("Error al buscar el usuario por ID: " + error.message);
   }
-};
+
+  async findById(userId) {
+    try {
+      return await userModel.findById(userId).lean();
+    } catch (error) {
+      throw new Error("Error al buscar el usuario por ID: " + error.message);
+    }
+  }
+
+  async updateUser(userId, updateData) {
+    try {
+      return await userModel.findByIdAndUpdate(userId, updateData, {
+        new: true,
+      });
+    } catch (error) {
+      throw new Error("Error al actualizar el usuario: " + error.message);
+    }
+  }
+
+  async deleteUser(userId) {
+    try {
+      return await userModel.findByIdAndDelete(userId);
+    } catch (error) {
+      throw new Error("Error al eliminar el usuario: " + error.message);
+    }
+  }
+}
+
+export default new UserRepository();

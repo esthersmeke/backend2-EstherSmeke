@@ -1,40 +1,77 @@
-import {
-  findByEmail,
-  create,
-  findById,
-} from "../repositories/userRepository.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import UserRepository from "../repositories/userRepository.js";
 
-// Registrar un usuario
-export const register = async (userData) => {
-  const { password, ...restData } = userData;
+class UserService {
+  async registerUser(userData) {
+    const { email, password, ...rest } = userData;
 
-  // Verificar si el usuario ya existe
-  const existingUser = await findByEmail(restData.email);
-  if (existingUser) {
-    throw new Error("El usuario ya existe");
+    // Verifica si el usuario ya existe
+    const existingUser = await UserRepository.findByEmail(email);
+    if (existingUser) throw new Error("El email ya está registrado");
+
+    // Encripta la contraseña
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    // Crea el usuario
+    return await UserRepository.createUser({
+      email,
+      password: hashedPassword,
+      ...rest,
+    });
   }
 
-  // Hashear la contraseña
-  const hashedPassword = bcrypt.hashSync(password, 10);
+  async loginUser(email, password) {
+    const user = await UserRepository.findByEmail(email);
+    if (!user) throw new Error("Credenciales inválidas");
 
-  // Crear un nuevo usuario con rol predeterminado
-  const newUser = { ...restData, password: hashedPassword, role: "user" };
-  return await create(newUser);
-};
+    // Verifica la contraseña
+    const isPasswordValid = bcrypt.compareSync(password, user.password);
+    if (!isPasswordValid) throw new Error("Credenciales inválidas");
 
-// Iniciar sesión de usuario
-export const login = async (email, password) => {
-  const user = await findByEmail(email);
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    throw new Error("Email o contraseña incorrectos");
+    // Genera un token JWT
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    return { token, user };
   }
-  return user; // Devuelve un objeto plano gracias a `.lean()`
-};
 
-// Obtener perfil del usuario
-export const getProfile = async (userId) => {
-  const user = await findById(userId);
-  if (!user) throw new Error("Usuario no encontrado");
-  return user; // El controlador se encargará de convertir a DTO si es necesario
-};
+  async getUserProfile(userId) {
+    const user = await UserRepository.findById(userId);
+    if (!user) throw new Error("Usuario no encontrado");
+
+    // Devuelve solo información relevante
+    return {
+      id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      age: user.age,
+      role: user.role,
+    };
+  }
+
+  async generatePasswordResetToken(email) {
+    const user = await UserRepository.findByEmail(email);
+    if (!user) throw new Error("Usuario no encontrado");
+
+    // Genera un token de recuperación
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    return token;
+  }
+
+  async resetPassword(userId, newPassword) {
+    const hashedPassword = bcrypt.hashSync(newPassword, 10);
+    return await UserRepository.updateUser(userId, {
+      password: hashedPassword,
+    });
+  }
+}
+
+export default new UserService();

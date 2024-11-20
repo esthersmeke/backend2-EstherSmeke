@@ -17,6 +17,10 @@ import dotenv from "dotenv";
 dotenv.config(); // Esto carga las variables de entorno desde .env
 console.log("Node Environment:", process.env.NODE_ENV); // Verifica si está cargando NODE_ENV
 console.log("JWT Secret:", process.env.JWT_SECRET); // Verifica si está cargando JWT_SECRET
+console.log("MAIL_HOST:", process.env.MAIL_HOST);
+console.log("MAIL_PORT:", process.env.MAIL_PORT);
+console.log("MAIL_USER:", process.env.MAIL_USER);
+console.log("MAIL_PASS:", process.env.MAIL_PASS);
 
 const app = express();
 const PORT = process.env.PORT;

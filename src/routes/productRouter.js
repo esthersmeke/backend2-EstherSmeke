@@ -1,40 +1,25 @@
-import express from "express";
+import { Router } from "express";
+import {
+  isAuthenticated,
+  authorizeRole,
+} from "../middlewares/accessControl.js";
 import {
   createProduct,
-  updateProduct,
-  deleteProduct,
   getAllProducts,
   getProductByID,
+  updateProduct,
+  deleteProduct,
 } from "../controllers/productController.js";
-import passport from "passport";
-import { authorizeRole } from "../middlewares/accessControl.js";
 
-const router = express.Router();
+const router = Router();
 
-// Rutas públicas: disponibles para todos, autenticados o no
-router.get("/", getAllProducts); // Muestra productos con mensaje opcional para usuarios autenticados
-router.get("/:pid", getProductByID); // Obtiene un producto específico por ID
+// Rutas públicas
+router.get("/", getAllProducts); // Obtener todos los productos
+router.get("/:pid", getProductByID); // Obtener producto por ID
 
-// Rutas protegidas: solo accesibles por usuarios autenticados con rol de administrador
-router.post(
-  "/",
-  passport.authenticate("jwt", { session: false }), // Autenticación con JWT
-  authorizeRole("admin"), // Solo administradores pueden crear productos
-  createProduct
-);
-
-router.put(
-  "/:pid",
-  passport.authenticate("jwt", { session: false }), // Autenticación con JWT
-  authorizeRole("admin"), // Solo administradores pueden actualizar productos
-  updateProduct
-);
-
-router.delete(
-  "/:pid",
-  passport.authenticate("jwt", { session: false }), // Autenticación con JWT
-  authorizeRole("admin"), // Solo administradores pueden eliminar productos
-  deleteProduct
-);
+// Rutas protegidas (solo admin)
+router.post("/", isAuthenticated, authorizeRole("admin"), createProduct); // Crear un producto
+router.put("/:pid", isAuthenticated, authorizeRole("admin"), updateProduct); // Actualizar un producto
+router.delete("/:pid", isAuthenticated, authorizeRole("admin"), deleteProduct); // Eliminar un producto
 
 export default router;

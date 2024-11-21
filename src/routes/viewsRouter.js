@@ -2,32 +2,45 @@ import { Router } from "express";
 import {
   renderLogin,
   renderRegister,
-  renderCurrent,
   renderProducts,
-  handleLogout,
+  renderCart,
   renderResetPasswordView,
+  handleLogout,
 } from "../controllers/viewsController.js";
-
 import { isAuthenticated } from "../middlewares/accessControl.js";
 
 const router = Router();
 
-// Página de inicio de sesión (solo para usuarios no autenticados)
-router.get("/login", renderLogin);
+// Middleware para redirigir a /products si el usuario ya está autenticado
+const redirectIfAuthenticated = (req, res, next) => {
+  if (req.cookies?.currentUser) {
+    return res.redirect("/products");
+  }
+  next();
+};
 
-// Página de registro (solo para usuarios no autenticados)
-router.get("/register", renderRegister);
+// Rutas de vistas
+// Página de inicio de sesión (redirige si ya está autenticado)
+router.get("/login", redirectIfAuthenticated, renderLogin);
 
-// Página actual (perfil) para usuarios autenticados
-router.get("/current", isAuthenticated, renderCurrent);
+// Página de registro (redirige si ya está autenticado)
+router.get("/register", redirectIfAuthenticated, renderRegister);
+
+// Página de productos (vista pública, personalizada si el usuario está logueado)
+router.get("/products", renderProducts);
+
+// Página del carrito (protegida, requiere autenticación)
+router.get("/cart", isAuthenticated, renderCart);
+
+// Página de restablecimiento de contraseña
+router.get("/reset-password/:token", renderResetPasswordView);
+
+// Página de token expirado para restablecimiento de contraseña
+router.get("/reset-password-expired", (req, res) => {
+  res.render("resetPasswordExpired");
+});
 
 // Ruta de cierre de sesión
 router.get("/logout", handleLogout);
-
-// Página de productos (pública, pero personalizada si el usuario está autenticado)
-router.get("/products", renderProducts);
-
-// Ruta para servir la vista de restablecimiento de contraseña
-router.get("/reset-password/:token", renderResetPasswordView);
 
 export default router;

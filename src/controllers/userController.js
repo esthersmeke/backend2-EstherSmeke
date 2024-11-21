@@ -1,26 +1,75 @@
 import UserService from "../services/userService.js";
 import { sendMail } from "../utils/mailer.js";
 import jwt from "jsonwebtoken";
+import { isApiRequest } from "../utils/requestUtils.js";
 
 export const registerUser = async (req, res) => {
   try {
     const user = await UserService.registerUser(req.body);
-    res.status(201).json({ message: "Usuario registrado con éxito", user });
+
+    // Generar token JWT
+    const token = jwt.sign(
+      {
+        id: user._id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        age: user.age,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Configurar la cookie con el token para autenticación inmediata
+    res.cookie("currentUser", token, { httpOnly: true });
+
+    if (isApiRequest(req)) {
+      // Respuesta para Postman o API
+      return res
+        .status(201)
+        .json({ message: "Usuario registrado con éxito", user });
+    }
+
+    // Redirección para el navegador
+    res.redirect("/products");
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    if (isApiRequest(req)) {
+      // Respuesta para Postman o API
+      return res.status(400).json({ message: error.message });
+    }
+
+    // Renderización de una vista de error para el navegador
+    res.status(400).render("register", { error: error.message });
   }
 };
 
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Usar el servicio para obtener el token y el DTO del usuario
     const { token, user } = await UserService.loginUser(email, password);
 
-    // Configura la cookie con el token
+    // Configurar la cookie con el token
     res.cookie("currentUser", token, { httpOnly: true });
-    res.status(200).json({ message: "Inicio de sesión exitoso", user });
+
+    if (isApiRequest(req)) {
+      // Respuesta para Postman
+      return res
+        .status(200)
+        .json({ message: "Inicio de sesión exitoso", user });
+    }
+
+    // Redirigir al navegador a /products
+    res.redirect("/products");
   } catch (error) {
-    res.status(401).json({ message: error.message });
+    if (isApiRequest(req)) {
+      return res.status(401).json({ message: error.message });
+    }
+
+    // Renderizar vista de login con error
+    res.status(401).render("login", { error: error.message });
   }
 };
 

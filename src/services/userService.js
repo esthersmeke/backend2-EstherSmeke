@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserRepository from "../repositories/userRepository.js";
+import UserDTO from "../dto/UserDTO.js";
 
 class UserService {
   async registerUser(userData) {
@@ -25,18 +26,24 @@ class UserService {
     const user = await UserRepository.findByEmail(email);
     if (!user) throw new Error("Credenciales inválidas");
 
-    // Verifica la contraseña
+    // Verificar la contraseña
     const isPasswordValid = bcrypt.compareSync(password, user.password);
     if (!isPasswordValid) throw new Error("Credenciales inválidas");
 
-    // Genera un token JWT
+    // Generar el token JWT con los datos necesarios
     const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role },
+      {
+        id: user._id,
+        first_name: user.first_name,
+        email: user.email,
+        role: user.role,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
-    return { token, user };
+    // Retornar el token y el usuario transformado con el DTO
+    return { token, user: new UserDTO(user) };
   }
 
   async getUserProfile(userId) {

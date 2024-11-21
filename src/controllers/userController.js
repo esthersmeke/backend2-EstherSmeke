@@ -2,6 +2,7 @@ import UserService from "../services/userService.js";
 import { sendMail } from "../utils/mailer.js";
 import jwt from "jsonwebtoken";
 import { isApiRequest } from "../utils/requestUtils.js";
+import UserDTO from "../dto/UserDTO.js";
 
 export const registerUser = async (req, res) => {
   try {
@@ -75,7 +76,7 @@ export const loginUser = async (req, res) => {
 
 export const getUserProfile = async (req, res) => {
   try {
-    const user = await UserService.getUserProfile(req.user.id); // `req.user` ya validado por el middleware
+    const user = new UserDTO(req.user); // Usar el DTO para transformar los datos
     res.status(200).json(user);
   } catch (error) {
     res.status(404).json({ message: error.message });

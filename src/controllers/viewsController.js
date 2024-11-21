@@ -35,6 +35,24 @@ export const handleRegister = async (req, res) => {
   }
 };
 
+export const renderCurrent = (req, res) => {
+  try {
+    const token = req.cookies?.currentUser;
+    if (!token) {
+      return res.redirect("/login"); // Redirigir si no está autenticado
+    }
+
+    // Verificar y decodificar el token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = new UserDTO(decoded); // Usar el DTO para la vista
+
+    res.render("current", { user });
+  } catch (error) {
+    console.error("Error al renderizar la vista de perfil:", error.message);
+    res.redirect("/login"); // Redirigir en caso de error
+  }
+};
+
 // Renderizar la página de productos
 export const renderProducts = async (req, res) => {
   try {

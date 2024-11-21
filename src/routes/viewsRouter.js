@@ -6,6 +6,7 @@ import {
   renderCart,
   renderResetPasswordView,
   handleLogout,
+  renderCurrent,
 } from "../controllers/viewsController.js";
 import { isAuthenticated } from "../middlewares/accessControl.js";
 
@@ -25,6 +26,9 @@ router.get("/login", redirectIfAuthenticated, renderLogin);
 
 // Página de registro (redirige si ya está autenticado)
 router.get("/register", redirectIfAuthenticated, renderRegister);
+
+// Página de perfil del usuario actual (requiere autenticación)
+router.get("/current", renderCurrent);
 
 // Página de productos (vista pública, personalizada si el usuario está logueado)
 router.get("/products", renderProducts);

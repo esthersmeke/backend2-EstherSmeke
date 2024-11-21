@@ -1,8 +1,5 @@
 import { Router } from "express";
-import {
-  isAuthenticated,
-  authorizeRole,
-} from "../middlewares/accessControl.js";
+import passport from "passport";
 import {
   createProduct,
   getAllProducts,
@@ -10,6 +7,7 @@ import {
   updateProduct,
   deleteProduct,
 } from "../controllers/productController.js";
+import { authorizeRole } from "../middlewares/accessControl.js";
 
 const router = Router();
 
@@ -18,8 +16,25 @@ router.get("/", getAllProducts); // Obtener todos los productos
 router.get("/:pid", getProductByID); // Obtener producto por ID
 
 // Rutas protegidas (solo admin)
-router.post("/", isAuthenticated, authorizeRole("admin"), createProduct); // Crear un producto
-router.put("/:pid", isAuthenticated, authorizeRole("admin"), updateProduct); // Actualizar un producto
-router.delete("/:pid", isAuthenticated, authorizeRole("admin"), deleteProduct); // Eliminar un producto
+router.post(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  authorizeRole("admin"),
+  createProduct
+); // Crear un producto
+
+router.put(
+  "/:pid",
+  passport.authenticate("jwt", { session: false }),
+  authorizeRole("admin"),
+  updateProduct
+); // Actualizar un producto
+
+router.delete(
+  "/:pid",
+  passport.authenticate("jwt", { session: false }),
+  authorizeRole("admin"),
+  deleteProduct
+); // Eliminar un producto
 
 export default router;

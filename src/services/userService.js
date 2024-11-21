@@ -24,11 +24,11 @@ class UserService {
 
   async loginUser(email, password) {
     const user = await UserRepository.findByEmail(email);
-    if (!user) throw new Error("Credenciales inválidas");
+    if (!user) throw new Error("Usuario no encontrado");
 
     // Verificar la contraseña
     const isPasswordValid = bcrypt.compareSync(password, user.password);
-    if (!isPasswordValid) throw new Error("Credenciales inválidas");
+    if (!isPasswordValid) throw new Error("Contraseña incorrecta");
 
     // Generar el token JWT con los datos necesarios
     const token = jwt.sign(

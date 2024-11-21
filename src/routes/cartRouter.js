@@ -1,4 +1,5 @@
 import express from "express";
+import passport from "passport";
 import {
   getProductsFromCartByID,
   createCart,
@@ -7,19 +8,18 @@ import {
   deleteProductFromCart,
   clearCart,
 } from "../controllers/cartController.js";
-import passport from "passport";
 import { authorizeRole } from "../middlewares/accessControl.js";
 
 const router = express.Router();
 
-// Ruta para obtener los productos de un carrito por ID (autenticación opcional)
+// Ruta para obtener productos de un carrito (autenticación opcional)
 router.get(
   "/:cid",
   passport.authenticate("jwt", { session: false }),
   getProductsFromCartByID
 );
 
-// Ruta para crear un nuevo carrito (solo usuarios)
+// Ruta para crear un carrito (solo usuarios)
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
@@ -27,7 +27,7 @@ router.post(
   createCart
 );
 
-// Ruta para agregar un producto a un carrito (solo usuarios)
+// Ruta para agregar producto al carrito (solo usuarios)
 router.post(
   "/:cid/products/:pid",
   passport.authenticate("jwt", { session: false }),
@@ -35,7 +35,7 @@ router.post(
   addProductToCart
 );
 
-// Ruta para actualizar la cantidad de un producto en el carrito (solo usuarios)
+// Ruta para actualizar cantidad de producto (solo usuarios)
 router.put(
   "/:cid/products/:pid",
   passport.authenticate("jwt", { session: false }),
@@ -43,7 +43,7 @@ router.put(
   updateProductQuantity
 );
 
-// Ruta para eliminar un producto de un carrito (solo usuarios)
+// Ruta para eliminar un producto del carrito (solo usuarios)
 router.delete(
   "/:cid/products/:pid",
   passport.authenticate("jwt", { session: false }),

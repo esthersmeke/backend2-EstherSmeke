@@ -69,7 +69,7 @@ export const renderProducts = async (req, res) => {
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         welcomeMessage = `Bienvenido, ${decoded.first_name}!`;
-        user = decoded; // Pasar los datos del usuario al renderizado
+        user = new UserDTO(decoded); // Transformar el usuario en un DTO
       } catch (error) {
         console.warn("Token inválido o expirado:", error.message);
       }

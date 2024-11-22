@@ -25,10 +25,12 @@
       <p>Descripción: {{this.description}}</p>
       <p>Precio: ${{this.price}}</p>
       <a href="/products/{{this._id}}">Ver detalle</a>
-      {{#if user}}
-        <button onclick="addToCart('{{this.id}}')">Agregar al carrito</button>
+      {{#if ../user}}
+        <!-- Botón para usuarios autenticados -->
+        <button class="add-to-cart-btn" data-id="{{this._id}}">Agregar al carrito</button>
       {{else}}
-        <p>Inicia sesión para comprar</p>
+        <!-- Botón para usuarios no autenticados -->
+        <button class="login-to-buy-btn" onclick="window.location.href='/login'">Inicia sesión para comprar</button>
       {{/if}}
     </div>
   {{/each}}

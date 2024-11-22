@@ -98,9 +98,30 @@ export const forgotPassword = async (req, res) => {
       `Haz clic aquí para restablecer tu contraseña: ${resetLink}`
     );
 
-    res.status(200).json({ message: "Correo de recuperación enviado" });
+    // Responder según el tipo de solicitud
+    if (isApiRequest(req)) {
+      // Respuesta JSON para Postman
+      return res
+        .status(200)
+        .json({ message: "Correo de recuperación enviado" });
+    }
+
+    // Renderizar la vista de éxito para el navegador (en lugar de redirigir)
+    res.render("forgotPasswordSuccess", {
+      title: "Correo Enviado",
+      message:
+        "Hemos enviado un enlace de recuperación de contraseña a tu correo.",
+      linkText: "Ver productos",
+      linkHref: "/products",
+    });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    if (isApiRequest(req)) {
+      // Respuesta JSON para Postman
+      return res.status(400).json({ message: error.message });
+    }
+
+    // Renderizar una vista de error para el navegador
+    res.status(400).render("error", { message: error.message });
   }
 };
 

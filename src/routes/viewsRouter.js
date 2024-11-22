@@ -1,15 +1,7 @@
 import { Router } from "express";
-import {
-  renderLogin,
-  renderRegister,
-  renderProducts,
-  renderCart,
-  renderResetPasswordView,
-  handleLogout,
-  renderCurrent,
-  renderProductDetail,
-} from "../controllers/viewsController.js";
-import { isAuthenticated } from "../middlewares/accessControl.js";
+import * as viewsController from "../controllers/viewsController.js"; // Importación limpia
+
+import { isAuthenticated } from "../middlewares/accessControl.js"; // Middleware de autenticación
 
 const router = Router();
 
@@ -22,33 +14,37 @@ const redirectIfAuthenticated = (req, res, next) => {
 };
 
 // Rutas de vistas
-// Página de inicio de sesión (redirige si ya está autenticado)
-router.get("/login", redirectIfAuthenticated, renderLogin);
+router
+  .get("/login", redirectIfAuthenticated, viewsController.renderLogin) // Login
 
-// Página de registro (redirige si ya está autenticado)
-router.get("/register", redirectIfAuthenticated, renderRegister);
+  .get("/register", redirectIfAuthenticated, viewsController.renderRegister) // Registro
 
-// Página de perfil del usuario actual (requiere autenticación)
-router.get("/current", renderCurrent);
+  .get("/current", viewsController.renderCurrent) // Perfil actual
 
-// Página de productos (vista pública, personalizada si el usuario está logueado)
-router.get("/products", renderProducts);
+  .get("/products", viewsController.renderProducts) // Página de productos
 
-// Ruta para la vista de detalle del producto
-router.get("/products/:id", renderProductDetail);
+  .get("/products/:id", viewsController.renderProductDetail) // Detalle de producto
 
-// Página del carrito (protegida, requiere autenticación)
-router.get("/cart", isAuthenticated, renderCart);
+  .get("/cart", isAuthenticated, viewsController.renderCart); // Carrito
 
-// Página de restablecimiento de contraseña
-router.get("/reset-password/:token", renderResetPasswordView);
+// Rutas combinadas para forgot-password
+router
+  .route("/forgot-password")
+  .get(viewsController.renderForgotPassword) // Formulario de recuperación
+  .post(viewsController.handleForgotPassword); // Manejo del formulario
+
+// Rutas combinadas para reset-password/:token
+router
+  .route("/reset-password/:token")
+  .get(viewsController.renderResetPasswordView) // Formulario de nueva contraseña
+  .post(viewsController.renderResetPasswordView); // Procesar nueva contraseña
 
 // Página de token expirado para restablecimiento de contraseña
 router.get("/reset-password-expired", (req, res) => {
-  res.render("resetPasswordExpired");
+  res.render("resetPasswordExpired"); // Vista de token expirado
 });
 
 // Ruta de cierre de sesión
-router.get("/logout", handleLogout);
+router.get("/logout", viewsController.handleLogout); // Cerrar sesión
 
 export default router;

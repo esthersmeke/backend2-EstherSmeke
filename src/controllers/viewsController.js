@@ -118,14 +118,67 @@ export const renderCart = async (req, res) => {
   }
 };
 
-// Renderizar la vista de restablecimiento de contraseña
-export const renderResetPasswordView = (req, res) => {
-  const { token } = req.params;
+// Renderizar la vista para solicitar correo de recuperación
+export const renderForgotPassword = (req, res) => {
+  res.render("forgotPassword");
+};
+
+// Manejar solicitud de correo de recuperación
+export const handleForgotPassword = async (req, res) => {
   try {
-    res.render("resetPassword", { token });
+    console.log("Entrando a handleForgotPassword");
+
+    const { email } = req.body;
+    const token = await userService.generatePasswordResetToken(email);
+
+    // Generar enlace de recuperación
+    const resetLink = `${req.protocol}://${req.get(
+      "host"
+    )}/reset-password/${token}`;
+    await userService.sendMail(
+      email,
+      "Recuperación de contraseña",
+      `Haz clic aquí para restablecer tu contraseña: ${resetLink}`
+    );
+
+    // Renderizar mensaje de éxito (NO REDIRIGIR)
+    res.render("forgotPasswordSuccess", {
+      title: "Correo Enviado",
+      message:
+        "Hemos enviado un enlace de recuperación de contraseña a tu correo.",
+      linkText: "Ver productos",
+      linkHref: "/products",
+    });
   } catch (error) {
-    console.error("Error al renderizar la vista de restablecimiento:", error);
-    res.render("resetPasswordExpired");
+    console.error("Error en forgotPassword:", error.message);
+    res.status(500).render("error", { message: "Error al enviar el correo." });
+  }
+};
+
+// Renderizar o manejar restablecimiento de contraseña
+export const renderResetPasswordView = async (req, res) => {
+  const { token } = req.params;
+  if (req.method === "GET") {
+    return res.render("resetPassword", { token });
+  }
+  try {
+    const { newPassword } = req.body;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    await userService.resetPassword(decoded.id, newPassword);
+
+    // Mostrar mensaje de éxito
+    res.render("resetPasswordSuccess", {
+      title: "Contraseña Restablecida",
+      message: "Tu contraseña se ha restablecido con éxito.",
+      linkText: "Ver productos",
+      linkHref: "/products",
+    });
+  } catch (error) {
+    const message =
+      error.name === "TokenExpiredError"
+        ? "El token ha expirado, solicita uno nuevo."
+        : error.message;
+    res.status(400).render("error", { message });
   }
 };
 

@@ -40,15 +40,11 @@ export const getAllProducts = async (query) => {
 export const getProductByID = async (id) => {
   try {
     const product = await productRepository.getProductByID(id);
-    if (!product) {
-      throw new Error("Producto no encontrado o ID inválido.");
-    }
-    return new ProductDTO(product); // Aplica el DTO aquí
+    return product;
   } catch (error) {
-    throw new Error("Error al obtener el producto: " + error.message);
+    throw new Error("Error al obtener el producto por ID: " + error.message);
   }
 };
-
 export const createProduct = async (productData) => {
   try {
     // Generar datos con Faker.js si no se proporciona en el body

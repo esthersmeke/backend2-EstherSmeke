@@ -87,6 +87,26 @@ export const renderProducts = async (req, res) => {
   }
 };
 
+// Renderizar la página de detalle de un producto
+export const renderProductDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Llama al servicio para obtener el producto por ID
+    const product = await productService.getProductByID(id);
+
+    if (!product) {
+      return res.status(404).render("productNotFound");
+    }
+
+    // Renderiza la vista con el producto
+    res.render("productDetail", { product: new ProductDTO(product) });
+  } catch (error) {
+    console.error("Error al cargar el detalle del producto:", error.message);
+    res.status(500).render("error", { message: "Error interno del servidor" });
+  }
+};
+
 // Renderizar la página del carrito
 export const renderCart = async (req, res) => {
   try {

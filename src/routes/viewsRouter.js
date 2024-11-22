@@ -7,6 +7,7 @@ import {
   renderResetPasswordView,
   handleLogout,
   renderCurrent,
+  renderProductDetail,
 } from "../controllers/viewsController.js";
 import { isAuthenticated } from "../middlewares/accessControl.js";
 
@@ -32,6 +33,9 @@ router.get("/current", renderCurrent);
 
 // Página de productos (vista pública, personalizada si el usuario está logueado)
 router.get("/products", renderProducts);
+
+// Ruta para la vista de detalle del producto
+router.get("/products/:id", renderProductDetail);
 
 // Página del carrito (protegida, requiere autenticación)
 router.get("/cart", isAuthenticated, renderCart);

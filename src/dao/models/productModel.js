@@ -56,9 +56,17 @@ const productSchema = new mongoose.Schema({
       message: "Todos los thumbnails deben ser URLs válidas.",
     },
   },
+  status: {
+    type: Boolean,
+    default: true,
+  },
 });
 
+// Agregar el plugin de paginación
 productSchema.plugin(mongoosePaginate);
+
+// Crear índice en el campo 'title'
+productSchema.index({ title: 1 });
 
 const productModel = mongoose.model(productCollection, productSchema);
 

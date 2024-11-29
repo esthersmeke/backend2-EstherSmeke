@@ -1,4 +1,4 @@
-import * as productRepository from "../repositories/productRepository.js";
+import * as productRepository from "../dao/repositories/productRepository.js";
 import productModel from "../dao/models/productModel.js";
 import ProductDTO from "../dto/ProductDTO.js"; // Importa el DTO si es necesario
 import { faker } from "@faker-js/faker";
@@ -37,34 +37,48 @@ export const getAllProducts = async (query) => {
   }
 };
 
-export const getProductByID = async (id) => {
+export const getProductById = async (id) => {
   try {
-    const product = await productRepository.getProductByID(id);
+    const product = await productRepository.getProductById(id);
+
+    if (!product) {
+      throw new Error(`El producto con ID ${id} no existe`);
+    }
+
     return product;
   } catch (error) {
     throw new Error("Error al obtener el producto por ID: " + error.message);
   }
 };
+
 export const createProduct = async (productData) => {
   try {
-    // Generar datos con Faker.js si no se proporciona en el body
+    // Generar datos automáticos si no se proporcionan
     const generatedProduct = {
       title: productData.title || faker.commerce.productName(),
       description:
         productData.description || faker.commerce.productDescription(),
-      code: productData.code || faker.string.uuid(), // Genera un UUID único
+      code: productData.code || faker.string.alphanumeric(10), // Genera un code único
       price:
         productData.price ||
-        parseFloat(faker.commerce.price({ min: 1, max: 1000, dec: 2 })), // Precio con 2 decimales
-      stock: productData.stock || faker.number.int({ min: 1, max: 100 }), // Stock entre 1 y 100
+        parseFloat(faker.commerce.price({ min: 1, max: 1000, dec: 2 })),
+      stock: productData.stock || faker.number.int({ min: 1, max: 100 }),
       category: productData.category || faker.commerce.department(),
       thumbnails: productData.thumbnails || [faker.image.url()],
     };
 
-    // Validar y guardar el producto en el repositorio
+    // Validar si el código ya existe
+    const existingProduct = await productRepository.getProductByCode(
+      generatedProduct.code
+    );
+    if (existingProduct) {
+      throw new Error("El código del producto ya existe. Intenta con otro.");
+    }
+
+    // Crear producto en la base de datos
     const product = await productRepository.createProduct(generatedProduct);
 
-    return new ProductDTO(product); // Devuelve el producto en formato DTO
+    return product;
   } catch (error) {
     throw new Error("Error al crear el producto: " + error.message);
   }

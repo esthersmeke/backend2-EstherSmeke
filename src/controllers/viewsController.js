@@ -93,7 +93,7 @@ export const renderProductDetail = async (req, res) => {
     const { id } = req.params;
 
     // Llama al servicio para obtener el producto por ID
-    const product = await productService.getProductByID(id);
+    const product = await productService.getProductById(id);
 
     if (!product) {
       return res.status(404).render("productNotFound");
@@ -155,15 +155,33 @@ export const handleForgotPassword = async (req, res) => {
   }
 };
 
-// Renderizar o manejar restablecimiento de contraseña
-export const renderResetPasswordView = async (req, res) => {
+export const renderResetPasswordView = (req, res) => {
   const { token } = req.params;
-  if (req.method === "GET") {
-    return res.render("resetPassword", { token });
-  }
+  res.render("resetPassword", { token });
+};
+
+export const handleResetPassword = async (req, res) => {
+  const { token } = req.params; // Obtener el token desde la URL
+  const { newPassword } = req.body; // Nueva contraseña desde el formulario
+
+  console.log("Token recibido:", token);
+  console.log("Nueva contraseña recibida:", newPassword);
+
   try {
-    const { newPassword } = req.body;
+    if (!token) {
+      return res
+        .status(401)
+        .render("error", { message: "Token no proporcionado" });
+    }
+
+    if (!newPassword) {
+      return res
+        .status(400)
+        .render("error", { message: "La nueva contraseña es requerida." });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     await userService.resetPassword(decoded.id, newPassword);
 
     // Mostrar mensaje de éxito
@@ -178,6 +196,7 @@ export const renderResetPasswordView = async (req, res) => {
       error.name === "TokenExpiredError"
         ? "El token ha expirado, solicita uno nuevo."
         : error.message;
+
     res.status(400).render("error", { message });
   }
 };

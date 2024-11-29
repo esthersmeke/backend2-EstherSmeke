@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as viewsController from "../controllers/viewsController.js"; // Importación limpia
 
-import { isAuthenticated } from "../middlewares/accessControl.js"; // Middleware de autenticación
+import { authenticateUser } from "../middlewares/auth.middleware.js"; // Middleware de autenticación
 
 const router = Router();
 
@@ -25,7 +25,7 @@ router
 
   .get("/products/:id", viewsController.renderProductDetail) // Detalle de producto
 
-  .get("/cart", isAuthenticated, viewsController.renderCart); // Carrito
+  .get("/cart", authenticateUser, viewsController.renderCart); // Carrito
 
 // Rutas combinadas para forgot-password
 router
@@ -37,7 +37,7 @@ router
 router
   .route("/reset-password/:token")
   .get(viewsController.renderResetPasswordView) // Formulario de nueva contraseña
-  .post(viewsController.renderResetPasswordView); // Procesar nueva contraseña
+  .post(viewsController.handleResetPassword); // Procesar nueva contraseña
 
 // Página de token expirado para restablecimiento de contraseña
 router.get("/reset-password-expired", (req, res) => {

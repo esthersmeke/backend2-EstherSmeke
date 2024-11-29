@@ -23,6 +23,9 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+// Crear índice en el campo 'email'
+userSchema.index({ email: 1 });
+
 const userModel = mongoose.model("users", userSchema);
 
 export default userModel;

@@ -13,14 +13,9 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendMail = async (to, subject, html) => {
+// Actualizamos la función para aceptar un objeto mailOptions
+export const sendMail = async (mailOptions) => {
   try {
-    const mailOptions = {
-      from: `"Entrega" <${process.env.MAIL_USER}>`,
-      to,
-      subject,
-      html,
-    };
     const info = await transporter.sendMail(mailOptions);
     console.log("Correo enviado: %s", info.messageId);
     return info;

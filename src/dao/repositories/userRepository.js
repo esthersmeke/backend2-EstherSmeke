@@ -1,10 +1,18 @@
-import userModel from "../dao/models/userModel.js";
+import userModel from "../models/userModel.js";
+import mongoose from "mongoose";
 
 class UserRepository {
   async createUser(userData) {
     try {
-      return await userModel.create(userData);
+      console.log("Datos enviados a createUser:", userData);
+      const user = await userModel.create(userData);
+      console.log("Usuario creado en la base de datos:", user);
+      return user;
     } catch (error) {
+      console.error(
+        "Error al crear usuario en la base de datos:",
+        error.message
+      );
       throw new Error("Error al crear el usuario: " + error.message);
     }
   }
@@ -19,8 +27,13 @@ class UserRepository {
 
   async findById(userId) {
     try {
-      return await userModel.findById(userId).lean();
+      // Instanciar ObjectId usando 'new'
+      const objectId = new mongoose.Types.ObjectId(userId); // Usar 'new'
+      const user = await userModel.findById(objectId).lean();
+      console.log("Resultado de findById:", user);
+      return user;
     } catch (error) {
+      console.error("Error en findById:", error.message);
       throw new Error("Error al buscar el usuario por ID: " + error.message);
     }
   }
@@ -40,6 +53,14 @@ class UserRepository {
       return await userModel.findByIdAndDelete(userId);
     } catch (error) {
       throw new Error("Error al eliminar el usuario: " + error.message);
+    }
+  }
+  async findAll() {
+    try {
+      return await userModel.find().lean();
+    } catch (error) {
+      console.error("Error al obtener todos los usuarios:", error.message);
+      throw new Error("Error al obtener los usuarios.");
     }
   }
 }

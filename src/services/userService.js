@@ -1,86 +1,97 @@
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import UserRepository from "../repositories/userRepository.js";
-import UserDTO from "../dto/UserDTO.js";
+import {
+  generateToken,
+  generatePasswordResetToken,
+  verifyToken,
+} from "../utils/token.js";
+import userRepository from "../dao/repositories/userRepository.js";
 
-class UserService {
-  async registerUser(userData) {
-    const { email, password, ...rest } = userData;
+// Registrar un nuevo usuario
+export const registerUser = async (userData) => {
+  console.log("Datos recibidos en registerUser:", userData);
+  const { email, password } = userData;
 
-    // Verifica si el usuario ya existe
-    const existingUser = await UserRepository.findByEmail(email);
-    if (existingUser) throw new Error("El email ya está registrado");
-
-    // Encripta la contraseña
-    const hashedPassword = bcrypt.hashSync(password, 10);
-
-    // Crea el usuario
-    return await UserRepository.createUser({
-      email,
-      password: hashedPassword,
-      ...rest,
-    });
+  const existingUser = await userRepository.findByEmail(email);
+  if (existingUser) {
+    throw new Error("El usuario ya está registrado");
   }
 
-  async loginUser(email, password) {
-    const user = await UserRepository.findByEmail(email);
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const newUser = await userRepository.createUser({
+    ...userData,
+    password: hashedPassword,
+  });
+
+  console.log("Usuario creado exitosamente:", newUser);
+  const token = generateToken(newUser);
+  return { user: newUser, token };
+};
+
+// Iniciar sesión
+export const loginUser = async (email, password) => {
+  const user = await userRepository.findByEmail(email);
+  if (!user) {
+    throw new Error("Usuario no encontrado");
+  }
+
+  // Validar contraseña
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    throw new Error("Credenciales inválidas");
+  }
+
+  // Generar token para el usuario
+  const token = generateToken(user);
+  return { user, token };
+};
+
+// Generar token de recuperación de contraseña
+export const generateResetToken = async (email) => {
+  const user = await userRepository.findByEmail(email);
+  if (!user) {
+    throw new Error("Usuario no encontrado.");
+  }
+
+  return generatePasswordResetToken(user);
+};
+
+// Restablecer contraseña
+export const resetPassword = async (token, newPassword) => {
+  const decoded = verifyToken(token);
+  const user = await userRepository.findById(decoded.id);
+
+  if (!user) throw new Error("Usuario no encontrado.");
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await userRepository.updateUser(user._id, { password: hashedPassword });
+};
+
+// Obtener usuario actual
+export const getCurrentUser = async (token) => {
+  try {
+    const decoded = verifyToken(token);
+    console.log("Buscando usuario con ID:", decoded.id);
+
+    const user = await userRepository.findById(decoded.id);
+    console.log("Usuario encontrado:", user);
+
     if (!user) throw new Error("Usuario no encontrado");
-
-    // Verificar la contraseña
-    const isPasswordValid = bcrypt.compareSync(password, user.password);
-    if (!isPasswordValid) throw new Error("Contraseña incorrecta");
-
-    // Generar el token JWT con los datos necesarios
-    const token = jwt.sign(
-      {
-        id: user._id,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        age: user.age,
-        email: user.email,
-        role: user.role,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    // Retornar el token y el usuario transformado con el DTO
-    return { token, user: new UserDTO(user) };
+    return user;
+  } catch (error) {
+    throw new Error("Error al obtener el usuario actual: " + error.message);
   }
+};
 
-  async getUserProfile(userId) {
-    const user = await UserRepository.findById(userId);
-    if (!user) throw new Error("Usuario no encontrado");
+// Actualizar un usuario
+export const updateUser = async (userId, updates) => {
+  const user = await userRepository.updateUser(userId, updates);
+  if (!user) throw new Error("Usuario no encontrado");
+  return user;
+};
 
-    // Devuelve solo información relevante
-    return {
-      id: user._id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email,
-      age: user.age,
-      role: user.role,
-    };
-  }
-
-  async generatePasswordResetToken(email) {
-    const user = await UserRepository.findByEmail(email);
-    if (!user) throw new Error("Usuario no encontrado");
-
-    // Genera un token de recuperación
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    return token;
-  }
-
-  async resetPassword(userId, newPassword) {
-    const hashedPassword = bcrypt.hashSync(newPassword, 10);
-    return await UserRepository.updateUser(userId, {
-      password: hashedPassword,
-    });
-  }
-}
-
-export default new UserService();
+// Eliminar un usuario
+export const deleteUser = async (userId) => {
+  const user = await userRepository.deleteUser(userId);
+  if (!user) throw new Error("Usuario no encontrado");
+  return user;
+};

@@ -1,7 +1,15 @@
-import productModel from "../dao/models/productModel.js";
+import productModel from "../models/productModel.js";
 
-// Obtener todos los productos con filtros, paginación y orden
-export const getAllProducts = async (filters, options) => {
+export const getProductByCode = async (code) => {
+  try {
+    const product = await productModel.findOne({ code });
+    return product;
+  } catch (error) {
+    throw new Error("Error al buscar producto por código: " + error.message);
+  }
+};
+
+export const findAll = async (filters, options) => {
   try {
     const products = await productModel.paginate(filters, options);
     return products;
@@ -10,8 +18,7 @@ export const getAllProducts = async (filters, options) => {
   }
 };
 
-// Obtener un producto por ID
-export const getProductByID = async (id) => {
+export const getProductById = async (id) => {
   try {
     const product = await productModel.findById(id);
     if (!product) {
@@ -23,21 +30,18 @@ export const getProductByID = async (id) => {
   }
 };
 
-// Crear un nuevo producto
 export const createProduct = async (productData) => {
   try {
     const newProduct = await productModel.create(productData);
     return newProduct;
   } catch (error) {
     if (error.code === 11000) {
-      // Código de error de MongoDB para duplicados
       throw new Error("El código del producto ya existe. Intenta con otro.");
     }
     throw new Error("Error al crear el producto: " + error.message);
   }
 };
 
-// Actualizar un producto por ID
 export const updateProduct = async (id, productData) => {
   try {
     const updatedProduct = await productModel.findByIdAndUpdate(
@@ -54,7 +58,6 @@ export const updateProduct = async (id, productData) => {
   }
 };
 
-// Eliminar un producto por ID
 export const deleteProduct = async (id) => {
   try {
     const deletedProduct = await productModel.findByIdAndDelete(id);

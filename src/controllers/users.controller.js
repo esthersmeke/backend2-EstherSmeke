@@ -9,7 +9,7 @@ export const registerUser = async (req, res) => {
 
     res.status(201).json({
       message: "Usuario registrado con éxito",
-      payload: { user: new UserDTO(user), token },
+      payload: { user: new UserDTO(user), token }, // Incluir cartId en el payload
     });
   } catch (error) {
     res.status(400).json({
@@ -29,13 +29,13 @@ export const loginUser = async (req, res) => {
       httpOnly: true, // La cookie no es accesible desde JavaScript del cliente
       secure: process.env.NODE_ENV === "production", // Solo en HTTPS en producción
       sameSite: "strict", // Evita que se envíe en solicitudes de otros sitios
-      maxAge: 60 * 60 * 1000, // 1 hora
+      maxAge: 60 * 60 * 1000 * 24, // 24 horas
     });
 
     // Responder con los datos del usuario sin el token en el header
     res.status(200).json({
       message: "Inicio de sesión exitoso",
-      payload: { user: new UserDTO(user), token }, // Puedes devolver el usuario y el token si lo deseas
+      payload: { user, token }, // Usa el DTO ya preparado
     });
   } catch (error) {
     res.status(401).json({

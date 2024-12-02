@@ -1,21 +1,20 @@
-class CartDTO {
+import ProductDTO from "./ProductDTO.js";
+
+export default class CartDTO {
   constructor(cart) {
     this.id = cart._id;
     this.products = cart.products.map((item) => ({
-      productId: item.product?._id || null,
-      title: item.product?.title || "Producto eliminado",
+      product: new ProductDTO(item.product),
       quantity: item.quantity,
+      isAvailable: item.product.status && item.product.stock > 0,
     }));
     this.totalItems = this.products.reduce(
-      (sum, item) => sum + item.quantity,
+      (total, item) => total + item.quantity,
       0
     );
-    this.totalPrice = cart.products.reduce(
-      (sum, item) =>
-        item.product ? sum + item.product.price * item.quantity : sum,
+    this.totalPrice = this.products.reduce(
+      (total, item) => total + item.quantity * item.product.price,
       0
     );
   }
 }
-
-export default CartDTO;

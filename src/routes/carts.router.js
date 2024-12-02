@@ -3,10 +3,10 @@ import {
   getCartById,
   createCart,
   addProductToCart,
+  updateProductQuantity,
   deleteProductFromCart,
   clearCart,
   processPurchase,
-  updateProductQuantity,
 } from "../controllers/carts.controller.js";
 import {
   authenticateUser,
@@ -15,6 +15,7 @@ import {
 import {
   validateCreateCart,
   validateAddProductToCart,
+  validateUpdateProductQuantity,
   validateCartPurchase,
 } from "../middlewares/validations.js";
 
@@ -35,15 +36,16 @@ router.post(
   addProductToCart
 );
 
-// Actualizar producto del carrito (solo usuario autenticado)
+// Actualizar cantidad de un producto en el carrito (solo usuario autenticado)
 router.put(
   "/:cid/products/:pid",
   authenticateUser,
   authorizeRole("user"),
+  validateUpdateProductQuantity, // Validación específica
   updateProductQuantity
 );
 
-// Eliminar producto de un carrito
+// Eliminar producto del carrito
 router.delete(
   "/:cid/products/:pid",
   authenticateUser,
@@ -54,11 +56,11 @@ router.delete(
 // Vaciar carrito (solo usuario autenticado)
 router.delete("/:cid", authenticateUser, authorizeRole("user"), clearCart);
 
-// Procesar la compra de un carrito por ID
+// Procesar la compra de un carrito
 router.post(
   "/:cid/purchase",
-  authenticateUser,
-  validateCartPurchase,
+  authenticateUser, // Validar que el usuario esté autenticado
+  validateCartPurchase, // Validar que el carrito sea válido
   processPurchase
 );
 

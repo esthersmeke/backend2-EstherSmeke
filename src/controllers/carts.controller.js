@@ -1,5 +1,5 @@
 import * as CartService from "../services/cartService.js";
-import CartDTO from "../dto/CartDTO.js";
+import TicketDTO from "../dto/TicketDTO.js";
 
 // Obtener productos de un carrito por ID
 export const getCartById = async (req, res) => {
@@ -15,7 +15,7 @@ export const getCartById = async (req, res) => {
       });
     }
 
-    res.status(200).json({ status: "success", payload: new CartDTO(cart) });
+    res.status(200).json({ status: "success", payload: cart }); // El servicio ya devuelve CartDTO
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -34,7 +34,7 @@ export const createCart = async (req, res) => {
     }
 
     const cart = await CartService.createCart(req.user.id); // Asociar carrito al usuario
-    res.status(200).json({ status: "success", payload: cart });
+    res.status(200).json({ status: "success", payload: cart }); // CartDTO aplicado en el servicio
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -43,22 +43,21 @@ export const createCart = async (req, res) => {
   }
 };
 
-// Agregar un producto al carrito
+// Agregar un producto al carrito (solo usuario autenticado)
+// En el controlador, pasa `req.user.id` como argumento al servicio:
 export const addProductToCart = async (req, res) => {
   try {
-    const { cid, pid } = req.params; // Usar los nombres correctos
+    const userId = req.user.id; // Obtén el `userId` del JWT en el controlador
+    const { cid, pid } = req.params;
 
-    if (!cid || !pid) {
-      return res
-        .status(400)
-        .json({ status: "error", message: "Faltan IDs requeridos" });
-    }
+    // Llamamos al servicio pasando `userId`, `cid` y `pid`
+    const updatedCart = await CartService.addProductToCart(userId, cid, pid);
 
-    const updatedCart = await CartService.addProductToCart(cid, pid);
-
-    res
-      .status(200)
-      .json({ status: "success", payload: new CartDTO(updatedCart) });
+    res.status(200).json({
+      status: "success",
+      message: "Producto agregado al carrito",
+      payload: updatedCart, // El DTO ya aplicado en el servicio
+    });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -76,7 +75,7 @@ export const updateProductQuantity = async (req, res) => {
     if (!quantity || quantity <= 0) {
       return res
         .status(400)
-        .json({ message: "La cantidad debe ser mayor a 0" });
+        .json({ status: "error", message: "La cantidad debe ser mayor a 0" });
     }
 
     const updatedCart = await CartService.updateProductQuantity(
@@ -85,9 +84,10 @@ export const updateProductQuantity = async (req, res) => {
       quantity
     );
 
-    res
-      .status(200)
-      .json({ status: "success", payload: new CartDTO(updatedCart) });
+    res.status(200).json({
+      status: "success",
+      payload: updatedCart, // CartDTO aplicado en el servicio
+    });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -112,9 +112,10 @@ export const deleteProductFromCart = async (req, res) => {
       });
     }
 
-    res
-      .status(200)
-      .json({ status: "success", payload: new CartDTO(updatedCart) });
+    res.status(200).json({
+      status: "success",
+      payload: updatedCart, // CartDTO aplicado en el servicio
+    });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -137,9 +138,10 @@ export const clearCart = async (req, res) => {
       });
     }
 
-    res
-      .status(200)
-      .json({ status: "success", payload: new CartDTO(clearedCart) });
+    res.status(200).json({
+      status: "success",
+      payload: clearedCart, // CartDTO aplicado en el servicio
+    });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -148,28 +150,27 @@ export const clearCart = async (req, res) => {
   }
 };
 
-// Función para procesar la compra del carrito
+// Procesar la compra del carrito
 export const processPurchase = async (req, res) => {
   try {
     const { cid } = req.params;
-    const purchaserEmail = req.user.email; // Obtén el email del usuario autenticado
+    const purchaserEmail = req.user.email;
 
-    // Procesamos la compra utilizando el servicio de carrito
-    const result = await CartService.processPurchase(
-      cid, // Pasar solo el cid
-      purchaserEmail // Pasar el email del comprador
-    );
+    const result = await CartService.processPurchase(cid, purchaserEmail);
 
     res.status(200).json({
-      message: result.message, // Usar result en lugar de purchaseResult
-      ticket: result.ticket,
+      status: "success",
+      message: result.message,
+      ticket: result.ticket ? new TicketDTO(result.ticket) : null,
       nonProcessedItems: result.nonProcessedItems,
       messageForNonProcessedItems: result.messageForNonProcessedItems,
     });
   } catch (error) {
     console.error("Error al procesar la compra:", error.message);
     res.status(500).json({
+      status: "error",
       message: "Hubo un error al procesar la compra. Inténtalo de nuevo.",
+      error: error.message,
     });
   }
 };

@@ -4,45 +4,65 @@ import mongoose from "mongoose";
 class UserRepository {
   async createUser(userData) {
     try {
-      console.log("Datos enviados a createUser:", userData);
       const user = await userModel.create(userData);
-      console.log("Usuario creado en la base de datos:", user);
       return user;
     } catch (error) {
-      console.error(
-        "Error al crear usuario en la base de datos:",
-        error.message
-      );
+      if (error.code === 11000) {
+        throw new Error(
+          "El correo ya está registrado. Por favor, utiliza otro."
+        );
+      }
       throw new Error("Error al crear el usuario: " + error.message);
     }
   }
 
-  async findByEmail(email) {
+  async findByEmail(email, populateFields = null) {
     try {
-      return await userModel.findOne({ email }).lean();
+      let query = userModel.findOne({ email }); // Crear consulta base
+      if (populateFields) {
+        query = query.populate(populateFields); // Agregar populate si es necesario
+      }
+      const user = await query;
+      if (!user) {
+        throw new Error("Usuario no encontrado con el email proporcionado.");
+      }
+      console.log("Usuario con carrito populado:", user); // Log para verificar populate
+      return user;
     } catch (error) {
       throw new Error("Error al buscar el usuario por email: " + error.message);
     }
   }
 
-  async findById(userId) {
+  async findById(userId, populateFields = null) {
     try {
-      // Instanciar ObjectId usando 'new'
-      const objectId = new mongoose.Types.ObjectId(userId); // Usar 'new'
-      const user = await userModel.findById(objectId).lean();
-      console.log("Resultado de findById:", user);
+      const objectId = new mongoose.Types.ObjectId(userId);
+      let query = userModel.findById(objectId); // Crea la consulta de Mongoose
+      if (populateFields) {
+        query = query.populate(populateFields); // Aplica populate si se especifica
+      }
+      const user = await query; // Ejecuta la consulta
+      if (!user) {
+        throw new Error("Usuario no encontrado con el ID proporcionado.");
+      }
       return user;
     } catch (error) {
-      console.error("Error en findById:", error.message);
       throw new Error("Error al buscar el usuario por ID: " + error.message);
     }
   }
 
   async updateUser(userId, updateData) {
     try {
-      return await userModel.findByIdAndUpdate(userId, updateData, {
-        new: true,
-      });
+      const updatedUser = await userModel.findByIdAndUpdate(
+        userId,
+        updateData,
+        {
+          new: true,
+        }
+      );
+      if (!updatedUser) {
+        throw new Error("Usuario no encontrado al intentar actualizar.");
+      }
+      return updatedUser;
     } catch (error) {
       throw new Error("Error al actualizar el usuario: " + error.message);
     }
@@ -50,17 +70,29 @@ class UserRepository {
 
   async deleteUser(userId) {
     try {
-      return await userModel.findByIdAndDelete(userId);
+      const deletedUser = await userModel.findByIdAndDelete(userId);
+      if (!deletedUser) {
+        throw new Error("Usuario no encontrado al intentar eliminar.");
+      }
+      return deletedUser;
     } catch (error) {
       throw new Error("Error al eliminar el usuario: " + error.message);
     }
   }
-  async findAll() {
+
+  async findAll(populateFields = null) {
     try {
-      return await userModel.find().lean();
+      let query = userModel.find();
+      if (populateFields) {
+        query = query.populate(populateFields); // Agregar populate si se especifica
+      }
+      const users = await query; // No usamos .lean() para mayor flexibilidad
+      if (users.length === 0) {
+        throw new Error("No se encontraron usuarios en la base de datos.");
+      }
+      return users;
     } catch (error) {
-      console.error("Error al obtener todos los usuarios:", error.message);
-      throw new Error("Error al obtener los usuarios.");
+      throw new Error("Error al obtener los usuarios: " + error.message);
     }
   }
 }

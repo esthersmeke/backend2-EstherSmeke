@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import mongoosePaginate from "mongoose-paginate-v2";
 
 const productCollection = "products";
 
@@ -62,12 +61,8 @@ const productSchema = new mongoose.Schema({
   },
 });
 
-// Agregar el plugin de paginación
-productSchema.plugin(mongoosePaginate);
-
-// Crear índice en el campo 'title'
+// Crear índice en el campo 'title' para optimizar búsquedas
 productSchema.index({ title: 1 });
 
-const productModel = mongoose.model(productCollection, productSchema);
-
+const productModel = mongoose.model("products", productSchema);
 export default productModel;

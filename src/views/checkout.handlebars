@@ -1,0 +1,13 @@
+<h1>Checkout</h1>
+<div>
+  <h2>Resumen de la compra</h2>
+  {{#each cart}}
+    <div>
+      <h3>{{this.name}}</h3>
+      <p>Precio: ${{this.price}}</p>
+      <p>Cantidad: {{this.quantity}}</p>
+    </div>
+  {{/each}}
+</div>
+<button>Confirmar compra</button>
+<script src="/js/ecommerce.js"></script>

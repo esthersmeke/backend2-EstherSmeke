@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import User from "../dao/models/userModel.js";
+import * as CartService from "../services/cartService.js"; // Importar el servicio de carrito
 
 // Función para crear el usuario administrador si no existe
 export const createAdminUser = async () => {
@@ -15,6 +16,13 @@ export const createAdminUser = async () => {
         password: hashedPassword,
         role: "admin",
       });
+      await newAdmin.save();
+
+      // Crear un carrito vacío para el administrador
+      const newCart = await CartService.createCart(newAdmin._id);
+
+      // Asignar el cartId al administrador
+      newAdmin.cart = newCart._id;
       await newAdmin.save();
       console.log("Usuario admin creado exitosamente.");
     } else {

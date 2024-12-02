@@ -1,31 +1,24 @@
 import * as ProductService from "../services/productService.js";
 import ProductDTO from "../dto/ProductDTO.js";
 
-// Obtener todos los productos con paginación y filtros
+// Obtener todos los productos con filtros aplicados
 export const getAllProducts = async (req, res) => {
   try {
-    const { page = 1, limit = 10, sort, category } = req.query;
-    const filters = {};
+    const filters = req.query;
 
-    if (category) filters.category = category;
+    const products = await ProductService.getAllProducts(filters);
 
-    const products = await ProductService.getAllProducts(filters, {
-      page,
-      limit,
-      sort,
-    });
-
-    if (!products.docs || products.docs.length === 0) {
+    if (!products || products.length === 0) {
       return res.status(404).json({
         status: "error",
-        message: "No se encontraron productos para los criterios aplicados",
+        message: "No se encontraron productos con los criterios aplicados.",
       });
     }
 
-    const payload = products.docs.map((product) => new ProductDTO(product));
-    res
-      .status(200)
-      .json({ status: "success", payload, totalPages: products.totalPages });
+    res.status(200).json({
+      status: "success",
+      payload: products,
+    });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -48,9 +41,10 @@ export const getProductById = async (req, res) => {
       });
     }
 
-    res
-      .status(200)
-      .json({ status: "success", payload: new ProductDTO(product) });
+    res.status(200).json({
+      status: "success",
+      payload: product,
+    });
   } catch (error) {
     res.status(500).json({
       status: "error",
@@ -64,12 +58,12 @@ export const createProduct = async (req, res) => {
   try {
     const productData = req.body;
 
-    // Delegamos completamente al servicio
     const newProduct = await ProductService.createProduct(productData);
 
-    res
-      .status(201)
-      .json({ status: "success", payload: new ProductDTO(newProduct) });
+    res.status(201).json({
+      status: "success",
+      payload: new ProductDTO(newProduct),
+    });
   } catch (error) {
     res.status(400).json({
       status: "error",
@@ -92,9 +86,10 @@ export const updateProduct = async (req, res) => {
         .json({ status: "error", message: "Producto no encontrado" });
     }
 
-    res
-      .status(200)
-      .json({ status: "success", payload: new ProductDTO(updatedProduct) });
+    res.status(200).json({
+      status: "success",
+      payload: new ProductDTO(updatedProduct),
+    });
   } catch (error) {
     res.status(400).json({
       status: "error",
@@ -116,9 +111,10 @@ export const deleteProduct = async (req, res) => {
         .json({ status: "error", message: "Producto no encontrado" });
     }
 
-    res
-      .status(200)
-      .json({ status: "success", payload: new ProductDTO(deletedProduct) });
+    res.status(200).json({
+      status: "success",
+      message: "Producto eliminado correctamente.",
+    });
   } catch (error) {
     res.status(500).json({
       status: "error",

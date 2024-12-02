@@ -1,18 +1,9 @@
+import mongoose from "mongoose";
 import productModel from "../models/productModel.js";
 
-export const getProductByCode = async (code) => {
+export const findAll = async (filters = {}) => {
   try {
-    const product = await productModel.findOne({ code });
-    return product;
-  } catch (error) {
-    throw new Error("Error al buscar producto por código: " + error.message);
-  }
-};
-
-export const findAll = async (filters, options) => {
-  try {
-    const products = await productModel.paginate(filters, options);
-    return products;
+    return await productModel.find(filters).lean(); // Usar lean para eficiencia
   } catch (error) {
     throw new Error("Error al obtener los productos: " + error.message);
   }
@@ -20,25 +11,29 @@ export const findAll = async (filters, options) => {
 
 export const getProductById = async (id) => {
   try {
-    const product = await productModel.findById(id);
+    const product = await productModel.findById(id).lean();
     if (!product) {
-      throw new Error("Producto no encontrado");
+      throw new Error(`Producto con ID ${id} no encontrado.`);
     }
     return product;
   } catch (error) {
-    throw new Error("Error al obtener el producto por ID: " + error.message);
+    throw new Error(`Error al obtener el producto por ID: ${error.message}`);
+  }
+};
+
+export const getProductByCode = async (code) => {
+  try {
+    return await productModel.findOne({ code }).lean(); // Buscar por código único
+  } catch (error) {
+    throw new Error(`Error al buscar producto por código: ${error.message}`);
   }
 };
 
 export const createProduct = async (productData) => {
   try {
-    const newProduct = await productModel.create(productData);
-    return newProduct;
+    return await productModel.create(productData); // Crear producto directamente
   } catch (error) {
-    if (error.code === 11000) {
-      throw new Error("El código del producto ya existe. Intenta con otro.");
-    }
-    throw new Error("Error al crear el producto: " + error.message);
+    throw new Error(`Error al crear producto: ${error.message}`);
   }
 };
 
@@ -47,14 +42,18 @@ export const updateProduct = async (id, productData) => {
     const updatedProduct = await productModel.findByIdAndUpdate(
       id,
       productData,
-      { new: true }
+      {
+        new: true, // Retornar el producto actualizado
+      }
     );
     if (!updatedProduct) {
-      throw new Error("Producto no encontrado");
+      throw new Error(`Producto con ID ${id} no encontrado.`);
     }
     return updatedProduct;
   } catch (error) {
-    throw new Error("Error al actualizar el producto: " + error.message);
+    throw new Error(
+      `Error al actualizar el producto con ID ${id}: ${error.message}`
+    );
   }
 };
 
@@ -62,10 +61,12 @@ export const deleteProduct = async (id) => {
   try {
     const deletedProduct = await productModel.findByIdAndDelete(id);
     if (!deletedProduct) {
-      throw new Error("Producto no encontrado");
+      throw new Error(`Producto con ID ${id} no encontrado.`);
     }
     return deletedProduct;
   } catch (error) {
-    throw new Error("Error al eliminar el producto: " + error.message);
+    throw new Error(
+      `Error al eliminar el producto con ID ${id}: ${error.message}`
+    );
   }
 };

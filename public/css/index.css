@@ -160,9 +160,15 @@ button:hover {
 }
 
 .error-message {
-  color: red;
+  background-color: #f8d7da; /* Fondo rojo claro */
+  border: 1px solid #f5c6cb; /* Borde color rojo claro */
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 5px;
+  color: #721c24; /* Texto color rojo oscuro */
   font-weight: bold;
-  margin-bottom: 15px;
+  font-size: 1rem;
+  text-align: center;
 }
 
 /* Responsive Design */

@@ -2,14 +2,7 @@
   <div class="login-card">
     <h2>Bienvenido de nuevo</h2>
 
-    <!-- Mensaje de error dinámico -->
-    {{#if error}}
-      <div class="error-message">
-        {{error}}
-      </div>
-    {{/if}}
-
-    <form action="/api/sessions/login" method="POST" class="login-form">
+    <form action="/login" method="POST" class="login-form">
       <div class="form-group">
         <label for="email">Correo:</label>
         <input
@@ -37,6 +30,16 @@
     <div class="login-links">
       <a href="/register" class="link">Crear una cuenta</a>
       <a href="/forgot-password" class="link">¿Olvidaste tu contraseña?</a>
+      <!-- Botón para iniciar sesión con GitHub -->
+      <a href="/github">
+        <button type="button">Iniciar sesión con GitHub</button>
+      </a>
     </div>
+    {{#if error}}
+      <div class="error-message">
+        <p class="error-text">{{error}}</p>
+        <a href="/register" class="btn-login">Regístrate aquí</a>
+      </div>
+    {{/if}}
   </div>
 </div>

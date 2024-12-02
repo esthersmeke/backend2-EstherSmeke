@@ -13,6 +13,7 @@ import {
 import {
   validateProductCreation,
   validateProductUpdate,
+  validateProductCode,
 } from "../middlewares/validations.js";
 
 const router = Router();
@@ -24,22 +25,15 @@ router.get("/", getAllProducts);
 router.get("/:id", getProductById);
 
 // Crear un producto
-if (process.env.NODE_ENV === "production") {
-  router.post(
-    "/",
-    authenticateUser,
-    authorizeRole("admin"),
-    validateProductCreation, // Valida los datos enviados en producción
-    createProduct
-  );
-} else {
-  router.post(
-    "/",
-    authenticateUser,
-    authorizeRole("admin"),
-    createProduct // Permite probar datos generados automáticamente en desarrollo
-  );
-}
+router.post(
+  "/",
+  validateProductCode,
+  validateProductCreation,
+  authenticateUser,
+  authorizeRole("admin"),
+  createProduct
+);
+
 // Actualizar un producto por ID
 router.put(
   "/:id",

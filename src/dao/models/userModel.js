@@ -14,12 +14,21 @@ const userSchema = new mongoose.Schema({
     required: true,
     min: [0, "La edad debe ser un número positivo"], // Validación de número positivo
   },
-  password: { type: String, required: true }, // Será encriptada en el service
+  password: { type: String, required: true }, // Será encriptada antes de guardar
   cart: { type: mongoose.Schema.Types.ObjectId, ref: "carts" },
   role: {
     type: String,
     enum: ["admin", "user"], // Solo permite admin o user
     default: "user",
+  },
+  githubId: {
+    type: String,
+    unique: true, // GitHub ID único
+    sparse: true, // Permite que algunos usuarios no tengan GitHub ID
+  },
+  githubEmail: {
+    type: String,
+    sparse: true, // También permitimos que no todos tengan este campo
   },
 });
 

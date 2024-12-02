@@ -1,13 +1,36 @@
-import { body, validationResult, param } from "express-validator";
+import { param, body, validationResult } from "express-validator";
 
-// Middleware genérico para manejar errores de validación
-const handleValidationErrors = (req, res, next) => {
+// Middleware para manejar errores de validación
+export const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({
+      status: "error",
+      errors: errors.array().map((err) => ({
+        param: err.param,
+        message: err.msg,
+      })),
+    });
   }
   next();
 };
+
+// Validar que un parámetro sea un ID de MongoDB válido
+export const validateMongoId = (paramName) => [
+  param(paramName)
+    .isMongoId()
+    .withMessage(`${paramName} debe ser un ID de MongoDB válido.`),
+  handleValidationErrors,
+];
+
+// Validación para el código único de producto
+export const validateProductCode = [
+  body("code")
+    .optional()
+    .isAlphanumeric()
+    .withMessage("El código debe contener solo caracteres alfanuméricos."),
+  handleValidationErrors,
+];
 
 // Validaciones para registro
 export const validateRegister = [
@@ -30,7 +53,7 @@ export const validateLogin = [
   handleValidationErrors,
 ];
 
-// Validaciones para creación de productos (activar en Producción para usar sin Faker)
+// Validaciones para creación de productos
 export const validateProductCreation = [
   body("title")
     .notEmpty()
@@ -111,42 +134,78 @@ export const validateProductUpdate = [
   handleValidationErrors,
 ];
 
+// Validación para crear un carrito
 export const validateCreateCart = [
   body("userId")
-    .optional()
+    .exists()
+    .withMessage("El ID del usuario es obligatorio.")
     .isMongoId()
-    .withMessage("El ID del usuario debe ser válido"),
-  handleValidationErrors,
+    .withMessage("El ID del usuario debe ser un ID válido."),
 ];
 
+// Validación para agregar un producto al carrito
 export const validateAddProductToCart = [
-  param("cid").isMongoId().withMessage("El ID del carrito no es válido"),
-  param("pid").isMongoId().withMessage("El ID del producto no es válido"),
-  body("quantity")
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage("La cantidad debe ser un número entero positivo"),
-  handleValidationErrors,
-];
-
-// **Validación para la ruta de compra de carrito**
-export const validateCartPurchase = [
+  param("pid")
+    .exists()
+    .withMessage("El ID del producto es obligatorio.")
+    .isMongoId()
+    .withMessage("El ID del producto debe ser un ID válido."),
   param("cid")
+    .exists()
+    .withMessage("El ID del carrito es obligatorio.")
     .isMongoId()
     .withMessage("El ID del carrito debe ser un ID válido."),
-  body("products")
+];
+
+// Validación para actualizar la cantidad de un producto en el carrito
+export const validateUpdateProductQuantity = [
+  param("cid")
+    .exists()
+    .withMessage("El ID del carrito es obligatorio.")
+    .isMongoId()
+    .withMessage("El ID del carrito debe ser un ID válido."),
+  param("pid")
+    .exists()
+    .withMessage("El ID del producto es obligatorio.")
+    .isMongoId()
+    .withMessage("El ID del producto debe ser un ID válido."),
+  body("quantity")
+    .exists()
+    .withMessage("La cantidad es obligatoria.")
+    .isInt({ gt: 0 })
+    .withMessage("La cantidad debe ser mayor a 0."),
+];
+
+// Validación para procesar la compra de un carrito
+export const validateCartPurchase = [
+  param("cid")
+    .exists()
+    .withMessage("El ID del carrito es obligatorio.")
+    .isMongoId()
+    .withMessage("El ID del carrito debe ser un ID válido."),
+];
+
+// Validar creación de un ticket
+export const validateCreateTicket = [
+  body("amount")
+    .exists()
+    .withMessage("El monto es obligatorio.")
+    .isFloat({ gt: 0 })
+    .withMessage("El monto debe ser un número mayor a 0."),
+  body("purchaser")
+    .exists()
+    .withMessage("El correo del comprador es obligatorio.")
+    .isEmail()
+    .withMessage("El correo debe ser válido."),
+  handleValidationErrors,
+];
+
+// Validar actualización de un ticket
+export const validateUpdateTicket = [
+  param("id").isMongoId().withMessage("El ID del ticket no es válido."),
+  body("status")
     .optional()
-    .isArray()
-    .withMessage("El carrito debe ser un array de productos."),
-  body("products.*.pid")
-    .optional()
-    .notEmpty()
-    .withMessage("Cada producto debe tener un pid."),
-  body("products.*.quantity")
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage(
-      "La cantidad de cada producto debe ser un número entero positivo."
-    ),
+    .isIn(["pendiente", "completada", "cancelada"])
+    .withMessage("El estado debe ser válido."),
   handleValidationErrors,
 ];

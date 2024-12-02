@@ -9,11 +9,12 @@ import usersRouter from "./routes/users.router.js";
 import productsRouter from "./routes/products.router.js";
 import cartsRouter from "./routes/carts.router.js";
 import sessionsRouter from "./routes/sessions.router.js";
-import viewsRouter from "./routes/viewsRouter.js";
+import viewsRouter from "./routes/views.router.js";
 import ticketRouter from "./routes/ticket.router.js";
 import { createAdminUser } from "./config/adminSetup.js";
 import config from "./config/config.js";
 import dotenv from "dotenv";
+import session from "express-session"; // Importar express-session
 
 dotenv.config();
 
@@ -48,6 +49,21 @@ app.engine(
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
 
+// Configuración de la sesión
+app.use(
+  session({
+    secret: "mi_clave_secreta", // Cambia esta clave en producción por algo más seguro
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // En desarrollo, secure: false está bien. En producción, usa HTTPS y setea en true.
+  })
+);
+
+// Inicialización de Passport
+initializePassport();
+app.use(passport.initialize());
+app.use(passport.session()); // Esta línea es crucial para manejar la sesión de Passport
+
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -55,10 +71,6 @@ app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-
-// Inicialización de Passport
-initializePassport();
-app.use(passport.initialize());
 
 // Rutas
 app.use("/api/users", usersRouter);

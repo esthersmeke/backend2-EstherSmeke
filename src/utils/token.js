@@ -15,9 +15,10 @@ export const generateToken = (user) => {
       email: user.email,
       age: user.age,
       role: user.role,
+      cart: user.cart, // Asegúrate de incluir el cartId
     },
     jwtSecret,
-    { expiresIn: "2h" }
+    { expiresIn: "24h" }
   );
 };
 

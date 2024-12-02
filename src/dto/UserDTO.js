@@ -6,6 +6,17 @@ class UserDTO {
     this.email = user.email || "Email no disponible"; // Valor por defecto
     this.age = user.age || "Edad no disponible"; // Valor por defecto
     this.role = user.role || "user"; // Valor por defecto
+
+    // Asignar el cartId
+    if (user.cart && user.cart._id) {
+      this.cartId = user.cart._id.toString();
+    } else if (typeof user.cart === "string") {
+      this.cartId = user.cart;
+    } else {
+      this.cartId = "Carrito no disponible";
+    }
+
+    console.log("CartId asignado en UserDTO:", this.cartId); // Log para depuración
   }
 }
 

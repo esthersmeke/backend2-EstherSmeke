@@ -1,15 +1,28 @@
-<div class="box">
-    <div class="view-products"><a id="button-products" class="button" href="/products">Volver</a></div>
-    <h1>Productos</h1>
-    <div class="products-box">
-        {{#each products}}
-            <div class="product-card">
-                <h3>{{this.product.title}}</h3>
-                <hr>
-                <p>Categoria: {{this.product.category}}</p>
-                <p>Precio: $ {{this.product.price}}</p>
-                <p>Cantidad: {{this.quantity}}</p>
-            </div>
-        {{/each}}
+<div class="products-box">
+  {{#each cart.products}}
+    <div class="product-card">
+      <h3>{{this.product.title}}</h3>
+      <p>Categoria: {{this.product.category}}</p>
+      <p>Precio: $ {{this.product.price}}</p>
+      <p>Cantidad: {{this.quantity}}</p>
+      <form action="/cart/update/{{this.product._id}}" method="POST">
+        <input
+          type="number"
+          name="quantity"
+          value="{{this.quantity}}"
+          min="1"
+        />
+        <button type="submit">Actualizar</button>
+      </form>
+      <form action="/cart/delete/{{this.product._id}}" method="POST">
+        <button type="submit">Eliminar</button>
+      </form>
     </div>
+  {{/each}}
 </div>
+
+<div class="total-price">
+  <p>Total: ${{totalPrice}}</p>
+</div>
+
+<a href="/checkout" class="button">Proceder a la compra</a>

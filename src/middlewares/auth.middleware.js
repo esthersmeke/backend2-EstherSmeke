@@ -6,9 +6,18 @@ export const authenticateUser = (req, res, next) => {
     const token = req.cookies?.currentUser;
 
     if (!token) {
-      return res
-        .status(401)
-        .json({ message: "No autenticado: Falta el token" });
+      console.warn("No se encontró el token en las cookies.");
+
+      // Comportamiento para APIs
+      if (req.originalUrl.startsWith("/api")) {
+        return res
+          .status(401)
+          .json({ message: "No autenticado. Token faltante." });
+      }
+      // Comportamiento para vistas
+      if (req.accepts("html")) {
+        return res.status(401).redirect("/login");
+      }
     }
 
     // Validar el token JWT
@@ -16,12 +25,17 @@ export const authenticateUser = (req, res, next) => {
     req.user = decoded; // Adjuntar los datos del usuario decodificado a la solicitud
     next();
   } catch (error) {
-    if (process.env.NODE_ENV !== "production") {
-      console.error("Error en authenticateUser:", error.message);
+    console.error("Error en authenticateUser:", error.message);
+
+    // Comportamiento para APIs
+    if (req.originalUrl.startsWith("/api")) {
+      return res.status(403).json({ message: "Token inválido o expirado." });
     }
-    return res.status(403).json({
-      message: "Error al verificar la autenticación: Token inválido o expirado",
-    });
+
+    // Comportamiento para vistas
+    if (req.accepts("html")) {
+      return res.status(403).redirect("/login");
+    }
   }
 };
 
@@ -39,3 +53,11 @@ export const authorizeRole = (requiredRole) => {
 
 // Middleware específico para administradores
 export const isAdmin = authorizeRole("admin");
+
+// Middleware para redirigir a /products si el usuario ya está autenticado
+export const redirectIfAuthenticated = (req, res, next) => {
+  if (req.cookies?.currentUser) {
+    return res.redirect("/products");
+  }
+  next();
+};

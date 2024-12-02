@@ -4,10 +4,22 @@ class TicketRepository {
   // Crear un nuevo ticket
   async createTicket(ticketData) {
     try {
-      console.log("Datos del ticket:", ticketData); // Depuración
-      const ticket = await Ticket.create(ticketData);
-      return ticket;
+      const ticket = await Ticket.create({
+        ...ticketData,
+        purchasedItems: ticketData.purchasedItems.map((item) => ({
+          product: item.product._id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      });
+      return await ticket.populate([
+        { path: "purchasedItems.product" },
+        { path: "unprocessedItems.product" },
+      ]);
     } catch (error) {
+      if (error.code === 11000) {
+        throw new Error("El código del ticket ya existe. Intenta con otro.");
+      }
       console.error("Error al crear el ticket:", error.message);
       throw new Error("Error al guardar el ticket en la base de datos.");
     }
@@ -16,10 +28,13 @@ class TicketRepository {
   // Obtener un ticket por ID
   async findTicketById(ticketId) {
     try {
-      // No usamos .lean() si necesitamos un documento de Mongoose
-      const ticket = await Ticket.findById(ticketId);
+      const ticket = await Ticket.findById(ticketId).populate([
+        { path: "purchasedItems.product" }, // Eliminamos `select`
+        { path: "unprocessedItems.product" },
+      ]);
+
       if (!ticket) {
-        throw new Error("Ticket no encontrado.");
+        throw new Error(`Ticket con ID ${ticketId} no encontrado.`);
       }
       return ticket;
     } catch (error) {
@@ -31,9 +46,12 @@ class TicketRepository {
   // Obtener todos los tickets
   async getAllTickets() {
     try {
-      // No usamos .lean() si necesitamos que sea un documento de Mongoose
-      const tickets = await Ticket.find();
-      return tickets;
+      return await Ticket.find()
+        .populate([
+          { path: "purchasedItems.product" }, // Eliminamos `select`
+          { path: "unprocessedItems.product" },
+        ])
+        .select("-__v");
     } catch (error) {
       console.error("Error al obtener todos los tickets:", error.message);
       throw new Error("Error al obtener los tickets.");
@@ -47,7 +65,14 @@ class TicketRepository {
         ticketId,
         updateData,
         { new: true }
-      );
+      ).populate([
+        { path: "purchasedItems.product" }, // Eliminamos `select`
+        { path: "unprocessedItems.product" },
+      ]);
+
+      if (!updatedTicket) {
+        throw new Error(`Ticket con ID ${ticketId} no encontrado.`);
+      }
       return updatedTicket;
     } catch (error) {
       console.error("Error al actualizar el ticket:", error.message);
@@ -58,29 +83,22 @@ class TicketRepository {
   // Buscar tickets por comprador
   async findTicketsByPurchaser(purchaser) {
     try {
-      // No usamos .lean() si necesitamos que sea un documento de Mongoose
-      const tickets = await Ticket.find({ purchaser });
+      const tickets = await Ticket.find({ purchaser })
+        .populate([
+          { path: "purchasedItems.product" }, // Eliminamos `select`
+          { path: "unprocessedItems.product" },
+        ])
+        .select("-__v");
+
+      if (!tickets.length) {
+        throw new Error(
+          `No se encontraron tickets para el comprador: ${purchaser}`
+        );
+      }
       return tickets;
     } catch (error) {
       console.error("Error al buscar tickets por comprador:", error.message);
       throw new Error("Error al buscar tickets por comprador.");
-    }
-  }
-  async generateTicket(ticketData) {
-    try {
-      return await Ticket.create(ticketData);
-    } catch (error) {
-      console.error("Error al generar ticket:", error.message);
-      throw new Error("No se pudo generar el ticket.");
-    }
-  }
-
-  async findUnprocessed(ids) {
-    try {
-      return await this.model.find({ _id: { $in: ids }, processed: false });
-    } catch (error) {
-      console.error("Error al buscar productos no procesados:", error.message);
-      throw new Error("Error al obtener productos no procesados.");
     }
   }
 }

@@ -1,7 +1,7 @@
 <div class="register-container box">
   <div class="register-card">
     <h2>Crea tu cuenta</h2>
-    <form action="/api/sessions/register" method="POST" class="register-form">
+    <form action="/register" method="POST" class="register-form">
       <div class="form-group">
         <label for="first_name">Nombre:</label>
         <input
@@ -58,10 +58,12 @@
     <div class="register-links">
       <a href="/login" class="link">Ya tengo una cuenta</a>
     </div>
+    {{#if error}}
+      <div class="error-message">
+        <p class="error-text">{{error}}</p>
+        <a href="{{loginLink}}" class="btn-login">Inicia sesión aquí</a>
+      </div>
+    {{/if}}
   </div>
 
-  {{#if error}}
-    <p class="error">{{error}}</p>
-    <a href="{{loginLink}}" class="btn-login">Inicia Sesión</a>
-  {{/if}}
 </div>

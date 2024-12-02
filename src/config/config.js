@@ -23,7 +23,7 @@ const config = {
     clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
     callbackUrl:
       process.env.GITHUB_CALLBACK_URL ||
-      "http://localhost:8080/api/sessions/github/callback",
+      "http://localhost:3000/auth/github/callback",
   },
   mail: {
     host: process.env.MAIL_HOST || "sandbox.smtp.mailtrap.io",

@@ -28,7 +28,7 @@ router.get("/:id", getProductById);
 router.post(
   "/",
   validateProductCode,
-  validateProductCreation,
+  /* validateProductCreation (Solo en produccion -sin Faker)*/
   authenticateUser,
   authorizeRole("admin"),
   createProduct

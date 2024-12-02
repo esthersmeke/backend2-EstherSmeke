@@ -44,32 +44,36 @@ class TicketService {
       }
 
       // Retornar el ticket estructurado con TicketDTO
-      return new TicketDTO(ticket);
+      return ticket; // Este objeto contiene el monto correcto desde la base de datos
     } catch (error) {
       console.error("Error al crear el ticket:", error.message);
-      throw new Error("No se pudo crear el ticket. Inténtalo nuevamente.");
+      throw new Error("No se pudo crear el ticket.");
     }
   }
 
-  // Obtener todos los tickets
+  // Obtener todos los tickets sin estructurar con TicketDTO
   static async getAllTickets() {
     try {
       const tickets = await ticketRepository.getAllTickets();
-      return tickets.map((ticket) => new TicketDTO(ticket)); // Estructurar cada ticket con TicketDTO
+
+      // Retorna directamente la lista de tickets desde el repositorio
+      return tickets;
     } catch (error) {
       console.error("Error al obtener todos los tickets:", error.message);
       throw new Error("No se pudieron obtener los tickets.");
     }
   }
 
-  // Obtener un ticket por ID
+  // Obtener un ticket por ID sin estructurar con TicketDTO
   static async getTicketById(ticketId) {
     try {
       const ticket = await ticketRepository.findTicketById(ticketId);
       if (!ticket) {
         throw new Error(`El ticket con ID ${ticketId} no fue encontrado.`);
       }
-      return new TicketDTO(ticket); // Estructurar el ticket con TicketDTO
+
+      // Retorna directamente el ticket recuperado del repositorio
+      return ticket;
     } catch (error) {
       console.error("Error al obtener el ticket:", error.message);
       throw new Error("No se pudo obtener el ticket.");

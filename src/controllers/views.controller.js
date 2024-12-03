@@ -3,7 +3,10 @@ import ProductDTO from "../dto/ProductDTO.js";
 import UserDTO from "../dto/UserDTO.js";
 import CartDTO from "../dto/CartDTO.js";
 import * as productService from "../services/productService.js";
+import * as cartService from "../services/cartService.js";
 import * as userService from "../services/userService.js";
+import cartRepository from "../dao/repositories/cartRepository.js"; // Importar el repositorio directamente
+
 import { sendMail } from "../utils/mailer.js"; // Asegúrate de importar sendMail correctamente
 
 // Renderizar la página de inicio de sesión
@@ -108,7 +111,7 @@ export const renderProducts = async (req, res) => {
     }
 
     res.render("index", {
-      products: products.docs.map((product) => new ProductDTO(product)),
+      products: products.map((product) => new ProductDTO(product)),
       user,
     });
   } catch (error) {
@@ -137,19 +140,31 @@ export const renderProductDetail = async (req, res) => {
 // Renderizar la página del carrito
 export const renderCart = async (req, res) => {
   try {
-    const cart = await userService.getCartById(req.user.id);
+    const user = req.user;
+    if (!user || !user.cart) {
+      return res.redirect("/login"); // Redirigir si no hay carrito asociado
+    }
 
-    // Estructurar el carrito con CartDTO
-    const formattedCart = new CartDTO(cart);
+    // Utilizar el repositorio para obtener los datos con populate
+    const cart = await cartRepository.getProductsFromCartById(user.cart);
 
+    if (!cart || !cart.products || !cart.products.length) {
+      return res.render("cart", {
+        user: new UserDTO(user),
+        cart: new CartDTO({ products: [], total: 0 }),
+        title: "Tu Carrito",
+      });
+    }
+
+    // Renderizar la vista con los datos completos
     res.render("cart", {
-      cart: formattedCart, // Enviar el carrito estructurado
-      user: new UserDTO(req.user), // Estructurar al usuario con UserDTO
-      totalPrice: formattedCart.totalPrice, // Utilizar el total ya calculado en el DTO
+      user: new UserDTO(user),
+      cart: new CartDTO(cart), // DTO para asegurar que los datos sean consistentes
+      title: "Tu Carrito",
     });
   } catch (error) {
-    console.error("Error en renderCart:", error.message);
-    res.status(500).send("Error al cargar el carrito.");
+    console.error("Error al renderizar la vista del carrito:", error.message);
+    res.status(500).render("error", { message: "Error interno del servidor." });
   }
 };
 

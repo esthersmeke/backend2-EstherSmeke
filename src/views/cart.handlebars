@@ -1,28 +1,41 @@
-<div class="products-box">
-  {{#each cart.products}}
-    <div class="product-card">
-      <h3>{{this.product.title}}</h3>
-      <p>Categoria: {{this.product.category}}</p>
-      <p>Precio: $ {{this.product.price}}</p>
-      <p>Cantidad: {{this.quantity}}</p>
-      <form action="/cart/update/{{this.product._id}}" method="POST">
-        <input
-          type="number"
-          name="quantity"
-          value="{{this.quantity}}"
-          min="1"
-        />
-        <button type="submit">Actualizar</button>
-      </form>
-      <form action="/cart/delete/{{this.product._id}}" method="POST">
-        <button type="submit">Eliminar</button>
-      </form>
-    </div>
-  {{/each}}
+{{#if user.cartId}}
+  <input type="hidden" id="cart-id" value="{{user.cartId}}">
+{{else}}
+  <p>Error: No se pudo cargar el carrito. Por favor, intenta de nuevo.</p>
+{{/if}}
+
+<div class="cart-container">
+  <h1>Tu Carrito</h1>
+  <div class="products-box">
+    {{#if (and cart.products cart.products.length)}}
+      {{#each cart.products}}
+        <div class="product-card">
+          <h3>{{this.product.title}}</h3>
+          <p>Categoría: {{this.product.category}}</p>
+          <p>Precio: $ {{this.product.price}}</p>
+          <p>Cantidad: {{this.quantity}}</p>
+          <div class="product-actions">
+            <button onclick="updateProductQuantity('{{../user.cartId}}', '{{this.product._id}}', {{add this.quantity 1}})">+</button>
+            <button onclick="updateProductQuantity('{{../user.cartId}}', '{{this.product._id}}', {{subtract this.quantity 1}})" {{#if (eq this.quantity 1)}}disabled{{/if}}>-</button>
+            <button onclick="removeFromCart('{{../user.cartId}}', '{{this.product._id}}')">Eliminar</button>
+          </div>
+        </div>
+      {{/each}}
+    {{else}}
+      <p>Tu carrito está vacío.</p>
+    {{/if}}
+  </div>
+  <div class="cart-summary">
+    <h2>Resumen del Carrito</h2>
+    <p>Total de productos: {{#if cart.totalItems}}{{cart.totalItems}}{{else}}0{{/if}}</p>
+    <p>Total a pagar: $ {{#if cart.totalPrice}}{{cart.totalPrice}}{{else}}0.00{{/if}}</p>
+    <button onclick="clearCart('{{user.cartId}}')">Vaciar Carrito</button>
+    <button onclick="proceedToCheckout('{{user.cartId}}')">Finalizar Compra</button>
+  </div>
+  <!-- "Seguir comprando" link -->
+  <div class="continue-shopping">
+    <a href="/products" class="btn-continue-shopping">← Seguir comprando</a>
+  </div>
 </div>
 
-<div class="total-price">
-  <p>Total: ${{totalPrice}}</p>
-</div>
-
-<a href="/checkout" class="button">Proceder a la compra</a>
+<script src="/js/cart.js" defer></script>

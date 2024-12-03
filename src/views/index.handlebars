@@ -1,3 +1,9 @@
+{{#if user.cartId}}
+  <input type="hidden" id="cart-id" value="{{user.cartId}}">
+{{else}}
+  <p>Error: No se pudo cargar el carrito. Por favor, intenta de nuevo.</p>
+{{/if}}
+
 <div class="header">
   <div class="welcome-message">
     {{#if user}}
@@ -10,6 +16,8 @@
     {{#if user}}
       <a href="/current" class="link-profile">Mi perfil</a>
       <a href="/logout" class="link-logout">Cerrar Sesión</a>
+        <!-- Link to Cart -->
+      <a href="/cart" class="link-cart">Ir al carrito</a>
     {{else}}
       <a href="/login" class="link-login">Inicia sesión</a>
     {{/if}}
@@ -26,13 +34,12 @@
       <p>Precio: ${{this.price}}</p>
       <a href="/products/{{this._id}}">Ver detalle</a>
       {{#if ../user}}
-        <!-- Botón para usuarios autenticados -->
-        <button class="add-to-cart-btn" data-id="{{this._id}}">Agregar al carrito</button>
+        <button class="btn-add-to-cart" data-id="{{this._id}}">Agregar al carrito</button>
       {{else}}
-        <!-- Botón para usuarios no autenticados -->
         <button class="login-to-buy-btn" onclick="window.location.href='/login'">Inicia sesión para comprar</button>
       {{/if}}
     </div>
   {{/each}}
 </div>
-<script src="/js/ecommerce.js"></script>
+
+<script src="/js/products.js" defer></script>

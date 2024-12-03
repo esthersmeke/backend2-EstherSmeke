@@ -34,6 +34,13 @@ mongoose
   })
   .catch((error) => console.error("Error al conectar a MongoDB Atlas:", error));
 
+// Configuración de Helpers Handlebars
+const hbsHelpers = {
+  eq: (a, b) => a === b,
+  and: (...args) => args.every(Boolean),
+  add: (a, b) => a + b,
+  subtract: (a, b) => a - b,
+};
 // Configuración de Handlebars
 app.engine(
   "handlebars",
@@ -44,6 +51,7 @@ app.engine(
       allowProtoPropertiesByDefault: true,
       allowProtoMethodsByDefault: true,
     },
+    helpers: hbsHelpers, // Aquí registras los helpers
   })
 );
 app.set("view engine", "handlebars");
@@ -52,10 +60,11 @@ app.set("views", "./src/views");
 // Configuración de la sesión
 app.use(
   session({
-    secret: "mi_clave_secreta", // Cambia esta clave en producción por algo más seguro
+    secret: process.env.SESSION_SECRET || "mi_clave_secreta", // Usa una variable de entorno para mayor seguridad
     resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }, // En desarrollo, secure: false está bien. En producción, usa HTTPS y setea en true.
+    saveUninitialized: false,
+    secure: process.env.NODE_ENV === "production", // Solo seguro en producción
+    httpOnly: true, // Prevenir acceso desde JavaScript del cliente
   })
 );
 
@@ -84,7 +93,11 @@ app.use("/", viewsRouter);
 app.use((err, req, res, next) => {
   if (process.env.NODE_ENV === "development") {
     console.error("Error capturado por el middleware global:", err.stack);
+    return res.status(500).json({ message: err.message, stack: err.stack });
   }
+
+  // Producción: No exponer detalles del error
+  console.error("Error capturado:", err.message);
   res.status(500).json({ message: "Error interno del servidor" });
 });
 

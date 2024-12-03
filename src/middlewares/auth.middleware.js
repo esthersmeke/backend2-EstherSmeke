@@ -23,6 +23,8 @@ export const authenticateUser = (req, res, next) => {
     // Validar el token JWT
     const decoded = verifyToken(token);
     req.user = decoded; // Adjuntar los datos del usuario decodificado a la solicitud
+    req.cartId = decoded.cart; // Aseguramos que req.cartId se toma del token
+
     next();
   } catch (error) {
     console.error("Error en authenticateUser:", error.message);

@@ -5,12 +5,13 @@ import ticketService from "./ticketService.js";
 
 export const createCart = async (userId) => {
   try {
-    const newCart = await cartRepository.createCart(userId); // Usar el repositorio para crear el carrito
-    return newCart; // Devolver el carrito creado
+    const newCart = await cartRepository.createCart(userId); // Crear carrito
+    return newCart;
   } catch (error) {
     throw new Error(`Error al crear un carrito: ${error.message}`);
   }
 };
+
 export const getCartById = async (cartId) => {
   try {
     const cart = await cartRepository.getCartById(cartId);
@@ -18,7 +19,6 @@ export const getCartById = async (cartId) => {
       throw new Error(`Carrito con ID ${cartId} no encontrado`);
     }
 
-    // Aplicar DTO solo al final del flujo
     cart.products = cart.products.map((item) => ({
       product: new ProductDTO(item.product),
       quantity: item.quantity,
@@ -32,28 +32,25 @@ export const getCartById = async (cartId) => {
   }
 };
 
-// En el servicio, cambia el código para usar `userId` como argumento:
 export const addProductToCart = async (userId, cid, pid) => {
   try {
-    const cart = await cartRepository.getCartById(cid); // Obtén el carrito por el `cid`
+    const cart = await cartRepository.getCartById(cid);
     if (!cart) {
       throw new Error("No se pudo encontrar el carrito.");
     }
 
-    // Verifica si el carrito pertenece al usuario actual
     if (cart.userId.toString() !== userId) {
       throw new Error("Este carrito no pertenece al usuario.");
     }
 
-    const updatedCart = await cartRepository.addProductToCart(cid, pid); // Agrega el producto al carrito
+    const updatedCart = await cartRepository.addProductToCart(cid, pid);
 
-    // Aplicar DTO solo al final del flujo
     updatedCart.products = updatedCart.products.map((item) => ({
       product: new ProductDTO(item.product),
       quantity: item.quantity,
     }));
 
-    return new CartDTO(updatedCart); // Retorna el carrito con el DTO aplicado
+    return new CartDTO(updatedCart);
   } catch (error) {
     throw new Error(`Error al agregar producto al carrito: ${error.message}`);
   }
@@ -66,7 +63,6 @@ export const updateProductQuantity = async (cid, pid, quantity) => {
       throw new Error(`No se encontró el carrito o el producto con ID ${pid}`);
     }
 
-    // Aplicar DTO solo al final del flujo
     cart.products = cart.products.map((item) => ({
       product: new ProductDTO(item.product),
       quantity: item.quantity,
@@ -87,7 +83,6 @@ export const deleteProductFromCart = async (cid, pid) => {
       throw new Error(`No se encontró el carrito con ID ${cid}`);
     }
 
-    // Aplicar DTO solo al final del flujo
     cart.products = cart.products.map((item) => ({
       product: new ProductDTO(item.product),
       quantity: item.quantity,
@@ -106,7 +101,6 @@ export const clearCart = async (cid) => {
       throw new Error(`No se encontró el carrito con ID ${cid}`);
     }
 
-    // Aplicar DTO solo al final del flujo
     cart.products = [];
     return new CartDTO(cart);
   } catch (error) {
@@ -130,18 +124,16 @@ export const processPurchase = async (cid, purchaserEmail) => {
     for (const item of cart.products) {
       const product = item.product;
 
-      // Manejar productos con precios inválidos
       if (!product.price || product.price <= 0) {
         nonProcessedItems.push({
           product,
           availableStock: product.stock,
           requestedQuantity: item.quantity,
-          message: "Precio inválido", // Añadir mensaje indicando el problema
+          message: "Precio inválido",
         });
-        continue; // Saltar al siguiente producto
+        continue;
       }
 
-      // Procesar productos con stock suficiente
       if (product.stock >= item.quantity) {
         product.stock -= item.quantity;
         totalAmount += product.price * item.quantity;
@@ -152,9 +144,8 @@ export const processPurchase = async (cid, purchaserEmail) => {
           price: product.price,
         });
 
-        await product.save(); // Guardar cambios en el stock del producto
+        await product.save();
       } else {
-        // Productos con stock insuficiente
         nonProcessedItems.push({
           product,
           availableStock: product.stock,
@@ -163,19 +154,16 @@ export const processPurchase = async (cid, purchaserEmail) => {
       }
     }
 
-    // Validar que se hayan procesado productos con un monto válido
     if (totalAmount <= 0) {
       throw new Error("El monto total de la compra debe ser mayor a 0.");
     }
 
-    // Actualizar el carrito con productos no procesados
     cart.products = nonProcessedItems.map((item) => ({
       product: item.product.id,
       quantity: item.requestedQuantity,
     }));
     await cart.save();
 
-    // Preparar datos del ticket
     const ticketData = {
       amount: totalAmount,
       purchaser: purchaserEmail,

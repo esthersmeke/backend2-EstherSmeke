@@ -9,9 +9,8 @@ class CartRepository {
       if (!cart) {
         throw new Error(`Carrito con ID ${cid} no encontrado.`);
       }
-      return cart; // Devolver datos "en bruto" al servicio
+      return cart;
     } catch (error) {
-      console.error(`Error al buscar carrito por ID: ${error.message}`);
       throw new Error(
         "Error al buscar el carrito. ID inválido o no encontrado."
       );
@@ -22,12 +21,9 @@ class CartRepository {
   async createCart(userId) {
     try {
       const newCart = new cartModel({ userId, products: [] });
-      return await newCart.save(); // Devolver el carrito creado directamente
+      return await newCart.save();
     } catch (error) {
-      console.error(`Error al crear un carrito: ${error.message}`);
-      throw new Error(
-        "Error al crear un carrito. Por favor, inténtelo de nuevo."
-      );
+      throw new Error("Error al crear un carrito. Inténtelo de nuevo.");
     }
   }
 
@@ -55,7 +51,6 @@ class CartRepository {
       await cart.save();
       return await cart.populate("products.product");
     } catch (error) {
-      console.error(`Error al agregar producto al carrito: ${error.message}`);
       throw new Error(
         "Error al agregar producto al carrito. Inténtelo de nuevo."
       );
@@ -77,13 +72,9 @@ class CartRepository {
       }
 
       cart.products[productIndex].quantity = quantity;
-
       await cart.save();
       return await cart.populate("products.product");
     } catch (error) {
-      console.error(
-        `Error al actualizar la cantidad del producto: ${error.message}`
-      );
       throw new Error(
         "Error al actualizar la cantidad del producto. Inténtelo de nuevo."
       );
@@ -103,7 +94,6 @@ class CartRepository {
       await cart.save();
       return cart;
     } catch (error) {
-      console.error(`Error al eliminar producto del carrito: ${error.message}`);
       throw new Error(
         "Error al eliminar producto del carrito. Inténtelo de nuevo."
       );
@@ -119,7 +109,6 @@ class CartRepository {
       cart.products = [];
       return await cart.save();
     } catch (error) {
-      console.error(`Error al vaciar carrito: ${error.message}`);
       throw new Error("Error al vaciar el carrito. Inténtelo de nuevo.");
     }
   }
@@ -135,7 +124,6 @@ class CartRepository {
       }
       return updatedCart;
     } catch (error) {
-      console.error(`Error al actualizar carrito: ${error.message}`);
       throw new Error("Error al actualizar el carrito. Inténtelo de nuevo.");
     }
   }
@@ -149,7 +137,6 @@ class CartRepository {
       }
       return cart;
     } catch (error) {
-      console.error(`Error al buscar carrito por ID: ${error.message}`);
       throw new Error(
         "Error al buscar el carrito. ID inválido o no encontrado."
       );
@@ -159,9 +146,8 @@ class CartRepository {
   // Obtener todos los carritos
   async findAll() {
     try {
-      return await cartModel.find().populate("products.product"); // Eliminamos `select`
+      return await cartModel.find().populate("products.product");
     } catch (error) {
-      console.error(`Error al obtener todos los carritos: ${error.message}`);
       throw new Error("Error al obtener los carritos. Inténtelo de nuevo.");
     }
   }

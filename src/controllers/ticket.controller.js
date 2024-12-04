@@ -92,14 +92,12 @@ export const createTicket = [
   async (req, res) => {
     try {
       const newTicket = await TicketService.createTicket(req.body);
-      // Retorna directamente el ticket desde el servicio
       return res.status(201).json({
         status: "success",
         message: "Ticket creado exitosamente.",
-        ticket: newTicket, // Usa el ticket sin modificar
+        ticket: newTicket, // Usar directamente el ticket creado
       });
     } catch (error) {
-      console.error("Error en el controlador:", error.message);
       return res.status(500).json({
         status: "error",
         message: "Error al crear el ticket.",

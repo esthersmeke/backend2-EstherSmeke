@@ -8,7 +8,6 @@ export const login = async (req, res) => {
 
     // Llama al servicio para autenticar al usuario
     const { user, token } = await loginUser(email, password);
-    console.log("Usuario al generar token:", user);
 
     // Configurar cookie con el token
     res.cookie("currentUser", token, {
@@ -17,7 +16,7 @@ export const login = async (req, res) => {
       sameSite: "strict",
     });
 
-    // Redirigir a la página actual del usuario
+    // Redirigir a la página de productos
     res.redirect("/products");
   } catch (error) {
     res.status(401).render("login", { error: "Credenciales inválidas" });
@@ -29,7 +28,6 @@ export const register = async (req, res) => {
   try {
     // Llama al servicio para registrar al usuario
     const { user, token } = await registerUser(req.body);
-    console.log("Usuario al generar token:", user);
 
     // Configurar cookie con el token
     res.cookie("currentUser", token, {
@@ -38,7 +36,7 @@ export const register = async (req, res) => {
       sameSite: "strict",
     });
 
-    // Redirigir a la página actual del usuario
+    // Redirigir a la página de productos
     res.redirect("/products");
   } catch (error) {
     res.status(400).render("register", { error: error.message });
@@ -67,7 +65,7 @@ export const githubCallback = (req, res) => {
       sameSite: "strict",
     });
 
-    // Redirigir al perfil del usuario o a una vista protegida
+    // Redirigir al perfil del usuario
     res.redirect("/current");
   } catch (error) {
     console.error("Error en githubCallback:", error.message);

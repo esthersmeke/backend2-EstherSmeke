@@ -8,6 +8,7 @@ export const currentUser = (req, res) => {
     if (!req.user) {
       return res.status(401).json({ message: "Usuario no autenticado" });
     }
+
     // Transformar el usuario con UserDTO
     const userDTO = new UserDTO(req.user);
 
@@ -16,7 +17,6 @@ export const currentUser = (req, res) => {
       user: userDTO, // Enviar la versión segura del usuario
     });
   } catch (error) {
-    console.error("Error en currentUser:", error.message);
     res.status(500).json({ message: "Error en el servidor" });
   }
 };

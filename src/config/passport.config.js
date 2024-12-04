@@ -2,15 +2,13 @@ import passport from "passport";
 import local from "passport-local";
 import { createHash, isValidpassword } from "../utils/hash.js";
 import User from "../dao/models/userModel.js";
-import { Strategy as GitHubStrategy } from "passport-github2"; // GitHub Strategy
+import { Strategy as GitHubStrategy } from "passport-github2"; // Estrategia de GitHub
 import { Strategy as JwtStrategy } from "passport-jwt";
-import config from "./config.js"; // Para usar las variables de configuración
+import config from "./config.js"; // Importar configuración
 
 const LocalStrategy = local.Strategy;
 
 const initializePassport = () => {
-  // Estrategia de Registro Local
-
   // Estrategia de Inicio de Sesión Local
   passport.use(
     "login",
@@ -48,8 +46,8 @@ const initializePassport = () => {
               last_name: "",
               email: profile.emails[0].value,
               age: null,
-              password: "", // Contraseña vacía según la consigna
-              role: req.user.role || "user",
+              password: "", // No se requiere contraseña para autenticación GitHub
+              role: "user", // Asignar rol de usuario por defecto
             });
           }
           return done(null, user);
@@ -60,16 +58,17 @@ const initializePassport = () => {
       }
     )
   );
-  // CookieExtractor para JWT
+
+  // Extracción del token JWT desde las cookies
   const cookieExtractor = (req) => {
     let token = null;
     if (req && req.cookies) {
-      token = req.cookies["currentUser"]; // Cambia 'jwt' por el nombre que le hayas dado a la cookie
+      token = req.cookies["currentUser"]; // Extraer token de la cookie 'currentUser'
     }
     return token;
   };
 
-  // Estrategia JWT
+  // Estrategia JWT para validar el token y obtener el usuario
   passport.use(
     new JwtStrategy(
       {
@@ -78,11 +77,11 @@ const initializePassport = () => {
       },
       async (jwt_payload, done) => {
         try {
-          const user = await User.findById(jwt_payload.id);
+          const user = await User.findById(jwt_payload.id); // Buscar usuario por ID
           if (user) {
             return done(null, user);
           }
-          return done(null, false);
+          return done(null, false); // Si no se encuentra el usuario, devolver falso
         } catch (error) {
           return done(error, false);
         }
@@ -92,16 +91,17 @@ const initializePassport = () => {
 
   // Serialización y deserialización de usuarios
   passport.serializeUser((user, done) => {
-    done(null, user._id); // Serializamos el _id del usuario
+    done(null, user._id); // Guardar solo el _id del usuario
   });
 
   passport.deserializeUser(async (id, done) => {
     try {
-      const user = await User.findById(id); // Deserializamos usando el _id
+      const user = await User.findById(id); // Recuperar el usuario por _id
       done(null, user);
     } catch (error) {
       done(error, null);
     }
   });
 };
+
 export default initializePassport;

@@ -5,7 +5,6 @@ import ProductDTO from "../dto/ProductDTO.js";
 export const getAllProducts = async (req, res) => {
   try {
     const filters = req.query;
-
     const products = await ProductService.getAllProducts(filters);
 
     if (!products || products.length === 0) {
@@ -31,7 +30,6 @@ export const getAllProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-
     const product = await ProductService.getProductById(id);
 
     if (!product) {
@@ -57,7 +55,6 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const productData = req.body;
-
     const newProduct = await ProductService.createProduct(productData);
 
     res.status(201).json({
@@ -102,7 +99,6 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
-
     const deletedProduct = await ProductService.deleteProduct(id);
 
     if (!deletedProduct) {

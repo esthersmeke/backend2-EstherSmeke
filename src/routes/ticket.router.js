@@ -15,16 +15,15 @@ import {
 
 const router = Router();
 
-// Ruta para obtener el historial de compras de un usuario
-// Requiere autenticación
+// Obtener historial de compras de un usuario
 router.get(
   "/history/:purchaser",
   authenticateUser, // Verifica que el usuario esté autenticado
-  validateMongoId("purchaser"), // Valida que el parámetro purchaser sea un ID válido si es necesario
+  validateMongoId("purchaser"), // Valida el parámetro purchaser
   getPurchaseHistory
 );
 
-// Ruta para obtener todos los tickets (solo administradores)
+// Obtener todos los tickets (solo administradores)
 router.get(
   "/",
   authenticateUser, // Verifica que el usuario esté autenticado
@@ -32,7 +31,7 @@ router.get(
   getAllTickets
 );
 
-// Ruta para obtener un ticket por ID
+// Obtener un ticket por ID
 router.get(
   "/:id",
   authenticateUser, // Verifica que el usuario esté autenticado
@@ -40,7 +39,7 @@ router.get(
   getTicketById
 );
 
-// Ruta para crear un nuevo ticket
+// Crear un nuevo ticket
 router.post(
   "/",
   authenticateUser, // Verifica que el usuario esté autenticado
@@ -48,7 +47,7 @@ router.post(
   createTicket
 );
 
-// Ruta para actualizar un ticket (solo administradores)
+// Actualizar un ticket (solo administradores)
 router.put(
   "/:id",
   authenticateUser, // Verifica que el usuario esté autenticado

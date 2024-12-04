@@ -9,7 +9,7 @@ export const registerUser = async (req, res) => {
 
     res.status(201).json({
       message: "Usuario registrado con éxito",
-      payload: { user: new UserDTO(user), token }, // Incluir cartId en el payload
+      payload: { user: new UserDTO(user), token },
     });
   } catch (error) {
     res.status(400).json({
@@ -26,16 +26,15 @@ export const loginUser = async (req, res) => {
 
     // Configurar el token en una cookie
     res.cookie("currentUser", token, {
-      httpOnly: true, // La cookie no es accesible desde JavaScript del cliente
-      secure: process.env.NODE_ENV === "production", // Solo en HTTPS en producción
-      sameSite: "strict", // Evita que se envíe en solicitudes de otros sitios
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 60 * 60 * 1000 * 24, // 24 horas
     });
 
-    // Responder con los datos del usuario sin el token en el header
     res.status(200).json({
       message: "Inicio de sesión exitoso",
-      payload: { user, token }, // Usa el DTO ya preparado
+      payload: { user, token },
     });
   } catch (error) {
     res.status(401).json({
@@ -45,8 +44,6 @@ export const loginUser = async (req, res) => {
 };
 
 // Recuperación de contraseña - Enviar correo
-// forgotPassword controller
-
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -56,15 +53,13 @@ export const forgotPassword = async (req, res) => {
       "host"
     )}/api/users/reset-password/${resetToken}`;
 
-    // Crear el objeto mailOptions con todos los detalles
     const mailOptions = {
-      from: process.env.MAIL_USER || "tu_correo@dominio.com", // Asegúrate de usar el correo correcto aquí
-      to: email, // El correo que recibirá el mensaje
-      subject: "Restablecimiento de contraseña", // Asunto del correo
-      html: `<a href="${resetUrl}">Restablecer contraseña</a>`, // Cuerpo HTML del correo
+      from: process.env.MAIL_USER || "tu_correo@dominio.com",
+      to: email,
+      subject: "Restablecimiento de contraseña",
+      html: `<a href="${resetUrl}">Restablecer contraseña</a>`,
     };
 
-    // Llamar a sendMail con el objeto completo de opciones
     await sendMail(mailOptions);
 
     res.status(200).json({ message: "Correo de restablecimiento enviado" });
@@ -191,7 +186,6 @@ export const logoutUser = (req, res) => {
     res.clearCookie("currentUser", { httpOnly: true, sameSite: "strict" });
     res.status(200).json({ message: "Cierre de sesión exitoso" });
   } catch (error) {
-    console.error("Error en logout:", error.message);
     res.status(500).json({ message: "Error al cerrar sesión" });
   }
 };

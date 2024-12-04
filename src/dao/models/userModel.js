@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: true,
     required: true,
-    match: /.+\@.+\..+/, // Validación de formato de email
+    match: /.+\@.+\..+/, // Validación básica de formato de email
   },
   age: {
     type: Number,
@@ -15,10 +15,10 @@ const userSchema = new mongoose.Schema({
     min: [0, "La edad debe ser un número positivo"], // Validación de número positivo
   },
   password: { type: String, required: true }, // Será encriptada antes de guardar
-  cart: { type: mongoose.Schema.Types.ObjectId, ref: "carts" },
+  cart: { type: mongoose.Schema.Types.ObjectId, ref: "carts" }, // Referencia al carrito
   role: {
     type: String,
-    enum: ["admin", "user"], // Solo permite admin o user
+    enum: ["admin", "user"], // Rol permitido: admin o user
     default: "user",
   },
   githubId: {
@@ -28,11 +28,11 @@ const userSchema = new mongoose.Schema({
   },
   githubEmail: {
     type: String,
-    sparse: true, // También permitimos que no todos tengan este campo
+    sparse: true, // También permite que no todos tengan este campo
   },
 });
 
-// Crear índice en el campo 'email'
+// Crear índice en el campo 'email' para optimizar búsquedas
 userSchema.index({ email: 1 });
 
 const userModel = mongoose.model("users", userSchema);

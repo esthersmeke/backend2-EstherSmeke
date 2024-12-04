@@ -69,11 +69,11 @@ const ticketSchema = new mongoose.Schema({
   ],
 });
 
-// Índices para optimización
+// Índices para optimización de búsquedas
 ticketSchema.index({ purchaser: 1 });
-ticketSchema.index({ purchaser: 1, status: 1 }); // Índice compuesto para búsquedas combinadas
+ticketSchema.index({ purchaser: 1, status: 1 }); // Índice compuesto
 
-// Middleware: Antes de guardar, verificar integridad de los datos
+// Middleware para asegurar integridad de los datos antes de guardar
 ticketSchema.pre("save", function (next) {
   if (this.purchasedItems.length === 0 && this.status === "completada") {
     return next(

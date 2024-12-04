@@ -1,29 +1,37 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Obtener el ID del carrito desde un elemento oculto
   const cartId = document.getElementById("cart-id")?.value;
-  let cartData = null; // Cache cart data locally
+  let cartData = null; // Datos del carrito en caché
 
+  // Cargar datos iniciales del carrito
   fetchCart(cartId);
 
   async function fetchCart(cartId) {
-    const response = await fetch(`/api/carts/${cartId}`, {
-      method: "GET",
-      credentials: "include",
-    });
+    try {
+      const response = await fetch(`/api/carts/${cartId}`, {
+        method: "GET",
+        credentials: "include",
+      });
 
-    if (!response.ok) throw new Error("Error al obtener el carrito");
+      if (!response.ok) throw new Error("Error al obtener el carrito");
 
-    const cartResponse = await response.json();
+      const cartResponse = await response.json();
 
-    // Validar que los productos estén populados
-    const allProductsValid = cartResponse.products.every(
-      (item) => item.product && item.product.title && item.product.price
-    );
+      // Validar que los productos tengan información válida
+      const allProductsValid = cartResponse.products.every(
+        (item) => item.product && item.product.title && item.product.price
+      );
 
-    // Guardar cartData localmente para usar en otras funciones
-    cartData = cartResponse;
+      if (!allProductsValid) throw new Error("Datos de productos inválidos");
 
-    // Renderizar los datos en la UI
-    updateCartUI(cartData);
+      // Guardar los datos en caché
+      cartData = cartResponse;
+
+      // Actualizar la interfaz
+      updateCartUI(cartData);
+    } catch (error) {
+      alert("Hubo un error al cargar el carrito.");
+    }
   }
 
   function updateCartUI(cartData) {
@@ -31,10 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const cartSummary = document.querySelector(".cart-summary");
 
     if (!cartContainer || !cartSummary) {
-      console.error("Error: Faltan elementos en el DOM.");
+      alert("No se encontraron los elementos necesarios en el DOM.");
       return;
     }
 
+    // Mostrar un mensaje si el carrito está vacío
     if (!cartData.products || cartData.products.length === 0) {
       cartContainer.innerHTML = "<p>Tu carrito está vacío.</p>";
       cartSummary.innerHTML = `
@@ -45,46 +54,34 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Actualizar productos individualmente
+    // Renderizar productos en el carrito
+    cartContainer.innerHTML = "";
     cartData.products.forEach((item) => {
-      const existingProductCard = document.querySelector(
-        `[data-product-id="${item.product._id}"]`
-      );
-
-      if (existingProductCard) {
-        existingProductCard.querySelector(".product-quantity").textContent =
-          item.quantity;
-        existingProductCard.querySelector(
-          ".product-total-price"
-        ).textContent = `$ ${(item.quantity * item.product.price).toFixed(2)}`;
-      } else {
-        const productCard = document.createElement("div");
-        productCard.classList.add("product-card");
-        productCard.setAttribute("data-product-id", item.product._id);
-        productCard.innerHTML = `
-          <h3>${item.product.title}</h3>
-          <p>Categoría: ${item.product.category || "Sin categoría"}</p>
-          <p>Precio: $${item.product.price}</p>
-          <p>Cantidad: <span class="product-quantity">${
-            item.quantity
-          }</span></p>
-          <p>Total: <span class="product-total-price">$${(
-            item.quantity * item.product.price
-          ).toFixed(2)}</span></p>
-          <button onclick="window.updateProductQuantity('${cartData._id}', '${
-          item.product._id
-        }', ${item.quantity + 1})">+</button>
-          <button onclick="window.updateProductQuantity('${cartData._id}', '${
-          item.product._id
-        }', ${item.quantity - 1})">-</button>
-          <button onclick="window.removeFromCart('${cartData._id}', '${
-          item.product._id
-        }')">Eliminar</button>
-        `;
-        cartContainer.appendChild(productCard);
-      }
+      const productCard = document.createElement("div");
+      productCard.classList.add("product-card");
+      productCard.setAttribute("data-product-id", item.product._id);
+      productCard.innerHTML = `
+        <h3>${item.product.title}</h3>
+        <p>Categoría: ${item.product.category || "Sin categoría"}</p>
+        <p>Precio: $${item.product.price}</p>
+        <p>Cantidad: <span class="product-quantity">${item.quantity}</span></p>
+        <p>Total: <span class="product-total-price">$${(
+          item.quantity * item.product.price
+        ).toFixed(2)}</span></p>
+        <button onclick="window.updateProductQuantity('${cartData._id}', '${
+        item.product._id
+      }', ${item.quantity + 1})">+</button>
+        <button onclick="window.updateProductQuantity('${cartData._id}', '${
+        item.product._id
+      }', ${item.quantity - 1})">-</button>
+        <button onclick="window.removeFromCart('${cartData._id}', '${
+        item.product._id
+      }')">Eliminar</button>
+      `;
+      cartContainer.appendChild(productCard);
     });
 
+    // Actualizar el resumen del carrito
     const totalItems = cartData.products.reduce(
       (sum, item) => sum + item.quantity,
       0
@@ -97,10 +94,11 @@ document.addEventListener("DOMContentLoaded", () => {
     cartSummary.innerHTML = `
       <h2>Resumen del Carrito</h2>
       <p>Total de productos: ${totalItems}</p>
-  <p>Total a pagar: $${parseFloat(totalPrice).toFixed(2)}</p>
+      <p>Total a pagar: $${parseFloat(totalPrice).toFixed(2)}</p>
     `;
   }
 
+  // Actualizar cantidad de un producto
   window.updateProductQuantity = async function (
     cartId,
     productId,
@@ -124,13 +122,13 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ quantity: newQuantity }),
         credentials: "include",
       });
-    } catch (error) {
-      console.error("Error al actualizar cantidad:", error.message);
-      alert("Hubo un error al sincronizar los cambios.");
+    } catch {
+      alert("Error al sincronizar los cambios.");
       fetchCart(cartId);
     }
   };
 
+  // Eliminar un producto del carrito
   window.removeFromCart = async function (cartId, productId) {
     cartData.products = cartData.products.filter(
       (item) => item.product._id !== productId
@@ -142,12 +140,13 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "DELETE",
         credentials: "include",
       });
-    } catch (error) {
-      console.error("Error al eliminar el producto:", error.message);
+    } catch {
+      alert("Error al eliminar el producto.");
       fetchCart(cartId);
     }
   };
 
+  // Vaciar el carrito
   window.clearCart = async function (cartId) {
     cartData = { products: [], totalItems: 0, totalPrice: 0 };
     updateCartUI(cartData);
@@ -157,12 +156,13 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "DELETE",
         credentials: "include",
       });
-    } catch (error) {
-      console.error("Error al vaciar el carrito:", error.message);
+    } catch {
+      alert("Error al vaciar el carrito.");
       fetchCart(cartId);
     }
   };
 
+  // Procesar la compra
   window.proceedToCheckout = async function (cartId) {
     try {
       const response = await fetch(`/api/carts/${cartId}/purchase`, {
@@ -170,17 +170,14 @@ document.addEventListener("DOMContentLoaded", () => {
         credentials: "include",
       });
 
-      if (!response.ok) throw new Error("Error al procesar la compra");
+      if (!response.ok) throw new Error();
 
       const data = await response.json();
 
-      // Redirige al usuario al detalle del ticket
+      // Redirigir al detalle del ticket
       window.location.href = `/ticket/${data.ticket.id}`;
-    } catch (error) {
-      console.error("Error al finalizar la compra:", error.message);
-      alert(
-        "Hubo un error al procesar tu compra. Por favor, intenta de nuevo."
-      );
+    } catch {
+      alert("Error al procesar la compra. Intenta de nuevo.");
     }
   };
 });

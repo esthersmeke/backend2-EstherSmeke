@@ -20,7 +20,6 @@ class TicketRepository {
       if (error.code === 11000) {
         throw new Error("El código del ticket ya existe. Intenta con otro.");
       }
-      console.error("Error al crear el ticket:", error.message);
       throw new Error("Error al guardar el ticket en la base de datos.");
     }
   }
@@ -29,7 +28,7 @@ class TicketRepository {
   async findTicketById(ticketId) {
     try {
       const ticket = await Ticket.findById(ticketId).populate([
-        { path: "purchasedItems.product" }, // Eliminamos `select`
+        { path: "purchasedItems.product" },
         { path: "unprocessedItems.product" },
       ]);
 
@@ -38,7 +37,6 @@ class TicketRepository {
       }
       return ticket;
     } catch (error) {
-      console.error("Error al buscar el ticket por ID:", error.message);
       throw new Error("Error al buscar el ticket.");
     }
   }
@@ -48,12 +46,11 @@ class TicketRepository {
     try {
       return await Ticket.find()
         .populate([
-          { path: "purchasedItems.product" }, // Eliminamos `select`
+          { path: "purchasedItems.product" },
           { path: "unprocessedItems.product" },
         ])
         .select("-__v");
     } catch (error) {
-      console.error("Error al obtener todos los tickets:", error.message);
       throw new Error("Error al obtener los tickets.");
     }
   }
@@ -66,7 +63,7 @@ class TicketRepository {
         updateData,
         { new: true }
       ).populate([
-        { path: "purchasedItems.product" }, // Eliminamos `select`
+        { path: "purchasedItems.product" },
         { path: "unprocessedItems.product" },
       ]);
 
@@ -75,7 +72,6 @@ class TicketRepository {
       }
       return updatedTicket;
     } catch (error) {
-      console.error("Error al actualizar el ticket:", error.message);
       throw new Error("Error al actualizar el ticket.");
     }
   }
@@ -85,7 +81,7 @@ class TicketRepository {
     try {
       const tickets = await Ticket.find({ purchaser })
         .populate([
-          { path: "purchasedItems.product" }, // Eliminamos `select`
+          { path: "purchasedItems.product" },
           { path: "unprocessedItems.product" },
         ])
         .select("-__v");
@@ -97,7 +93,6 @@ class TicketRepository {
       }
       return tickets;
     } catch (error) {
-      console.error("Error al buscar tickets por comprador:", error.message);
       throw new Error("Error al buscar tickets por comprador.");
     }
   }

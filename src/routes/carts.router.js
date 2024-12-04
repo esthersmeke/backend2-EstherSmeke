@@ -27,7 +27,7 @@ router.get("/:cid", authenticateUser, authorizeRole("user"), getCartById);
 // Crear un nuevo carrito
 router.post("/", authenticateUser, validateCreateCart, createCart);
 
-// Agregar producto al carrito (solo usuario autenticado)
+// Agregar producto al carrito
 router.post(
   "/:cid/products/:pid",
   authenticateUser,
@@ -36,12 +36,12 @@ router.post(
   addProductToCart
 );
 
-// Actualizar cantidad de un producto en el carrito (solo usuario autenticado)
+// Actualizar cantidad de un producto en el carrito
 router.put(
   "/:cid/products/:pid",
   authenticateUser,
   authorizeRole("user"),
-  validateUpdateProductQuantity, // Validación específica
+  validateUpdateProductQuantity,
   updateProductQuantity
 );
 
@@ -53,14 +53,14 @@ router.delete(
   deleteProductFromCart
 );
 
-// Vaciar carrito (solo usuario autenticado)
+// Vaciar carrito
 router.delete("/:cid", authenticateUser, authorizeRole("user"), clearCart);
 
 // Procesar la compra de un carrito
 router.post(
   "/:cid/purchase",
-  authenticateUser, // Validar que el usuario esté autenticado
-  validateCartPurchase, // Validar que el carrito sea válido
+  authenticateUser,
+  validateCartPurchase,
   processPurchase
 );
 

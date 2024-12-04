@@ -23,11 +23,12 @@ const cartSchema = new mongoose.Schema({
   ],
 });
 
-// Middleware: limpiar productos con cantidad <= 0 antes de guardar
+// Middleware para limpiar productos con cantidad <= 0 antes de guardar
 cartSchema.pre("save", function (next) {
   this.products = this.products.filter((item) => item.quantity > 0);
   next();
 });
+
 const cartModel = mongoose.model("carts", cartSchema);
 
 export default cartModel;

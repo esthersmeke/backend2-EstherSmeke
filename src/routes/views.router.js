@@ -18,10 +18,10 @@ const router = Router();
 router
   .route("/login")
   .get(redirectIfAuthenticated, viewsController.renderLogin)
-  .post(login); // Delegado al controlador de autenticación
+  .post(login);
 
 // Rutas de registro
-router.route("/register").get(viewsController.renderRegister).post(register); // Delegado al controlador de autenticación
+router.route("/register").get(viewsController.renderRegister).post(register);
 
 // Rutas para recuperación de contraseña
 router
@@ -45,7 +45,7 @@ router.get("/products/:id", viewsController.renderProductDetail);
 router.get("/cart", authenticateUser, viewsController.renderCart);
 
 // Cierre de sesión
-router.get("/logout", logout); // Delegado al controlador de autenticación
+router.get("/logout", logout);
 
 // Autenticación de GitHub
 router.get(
@@ -56,7 +56,7 @@ router.get(
 router.get(
   "/auth/github/callback",
   passport.authenticate("github", { failureRedirect: "/login" }),
-  githubCallback // Delegado al controlador de autenticación
+  githubCallback
 );
 // Vista para finalizar la compra (checkout)
 router.get("/checkout", authenticateUser, viewsController.renderCheckout);

@@ -15,8 +15,6 @@ class UserDTO {
     } else {
       this.cartId = "Carrito no disponible";
     }
-
-    console.log("CartId asignado en UserDTO:", this.cartId); // Log para depuración
   }
 }
 

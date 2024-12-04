@@ -14,7 +14,7 @@ import ticketRouter from "./routes/ticket.router.js";
 import { createAdminUser } from "./config/adminSetup.js";
 import config from "./config/config.js";
 import dotenv from "dotenv";
-import session from "express-session"; // Importar express-session
+import session from "express-session";
 
 dotenv.config();
 
@@ -54,7 +54,7 @@ app.engine(
       allowProtoPropertiesByDefault: true,
       allowProtoMethodsByDefault: true,
     },
-    helpers: hbsHelpers, // Aquí registras los helpers
+    helpers: hbsHelpers,
   })
 );
 app.set("view engine", "handlebars");
@@ -63,7 +63,7 @@ app.set("views", "./src/views");
 // Configuración de la sesión
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "mi_clave_secreta", // Usa una variable de entorno para mayor seguridad
+    secret: process.env.SESSION_SECRET || "mi_clave_secreta",
     resave: false,
     saveUninitialized: false,
     secure: process.env.NODE_ENV === "production", // Solo seguro en producción
@@ -74,7 +74,7 @@ app.use(
 // Inicialización de Passport
 initializePassport();
 app.use(passport.initialize());
-app.use(passport.session()); // Esta línea es crucial para manejar la sesión de Passport
+app.use(passport.session());
 
 // Middlewares
 app.use(express.json());

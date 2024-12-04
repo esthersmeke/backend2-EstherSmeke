@@ -5,7 +5,7 @@ import { faker } from "@faker-js/faker";
 // Obtener todos los productos con filtros aplicados
 export const getAllProducts = async (filter = {}) => {
   try {
-    const products = await productRepository.findAll(filter); // Cambiado a findAll para simplificación
+    const products = await productRepository.findAll(filter);
     return products.map((product) => new ProductDTO(product)); // Transformar productos a DTO
   } catch (error) {
     throw new Error(`Error al obtener los productos: ${error.message}`);
@@ -33,7 +33,7 @@ export const createProduct = async (productData) => {
       title: productData.title || faker.commerce.productName(),
       description:
         productData.description || faker.commerce.productDescription(),
-      code: productData.code || faker.string.alphanumeric(10), // Generar código único
+      code: productData.code || faker.string.alphanumeric(10),
       price:
         productData.price ||
         parseFloat(faker.commerce.price({ min: 1, max: 1000, dec: 2 })),
@@ -87,6 +87,8 @@ export const deleteProduct = async (id) => {
     throw new Error("Error al eliminar el producto: " + error.message);
   }
 };
+
+// Agregar producto al carrito
 export const addProductToCart = async (cid, pid) => {
   try {
     const product = await productRepository.getProductById(pid);

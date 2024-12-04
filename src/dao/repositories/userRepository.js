@@ -2,6 +2,7 @@ import userModel from "../models/userModel.js";
 import mongoose from "mongoose";
 
 class UserRepository {
+  // Crear un nuevo usuario
   async createUser(userData) {
     try {
       const user = await userModel.create(userData);
@@ -16,31 +17,32 @@ class UserRepository {
     }
   }
 
+  // Buscar un usuario por email
   async findByEmail(email, populateFields = null) {
     try {
-      let query = userModel.findOne({ email }); // Crear consulta base
+      let query = userModel.findOne({ email });
       if (populateFields) {
-        query = query.populate(populateFields); // Agregar populate si es necesario
+        query = query.populate(populateFields);
       }
       const user = await query;
       if (!user) {
         throw new Error("Usuario no encontrado con el email proporcionado.");
       }
-      console.log("Usuario con carrito populado:", user); // Log para verificar populate
       return user;
     } catch (error) {
       throw new Error("Error al buscar el usuario por email: " + error.message);
     }
   }
 
+  // Buscar un usuario por ID
   async findById(userId, populateFields = null) {
     try {
       const objectId = new mongoose.Types.ObjectId(userId);
-      let query = userModel.findById(objectId); // Crea la consulta de Mongoose
+      let query = userModel.findById(objectId);
       if (populateFields) {
-        query = query.populate(populateFields); // Aplica populate si se especifica
+        query = query.populate(populateFields);
       }
-      const user = await query; // Ejecuta la consulta
+      const user = await query;
       if (!user) {
         throw new Error("Usuario no encontrado con el ID proporcionado.");
       }
@@ -50,6 +52,7 @@ class UserRepository {
     }
   }
 
+  // Actualizar un usuario
   async updateUser(userId, updateData) {
     try {
       const updatedUser = await userModel.findByIdAndUpdate(
@@ -68,6 +71,7 @@ class UserRepository {
     }
   }
 
+  // Eliminar un usuario
   async deleteUser(userId) {
     try {
       const deletedUser = await userModel.findByIdAndDelete(userId);
@@ -80,13 +84,14 @@ class UserRepository {
     }
   }
 
+  // Obtener todos los usuarios
   async findAll(populateFields = null) {
     try {
       let query = userModel.find();
       if (populateFields) {
-        query = query.populate(populateFields); // Agregar populate si se especifica
+        query = query.populate(populateFields);
       }
-      const users = await query; // No usamos .lean() para mayor flexibilidad
+      const users = await query;
       if (users.length === 0) {
         throw new Error("No se encontraron usuarios en la base de datos.");
       }

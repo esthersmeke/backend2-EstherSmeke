@@ -12,7 +12,7 @@ import {
   resetPassword,
   logoutUser,
 } from "../controllers/users.controller.js";
-import { renderResetPasswordView } from "../controllers/views.controller.js"; // Importa la función desde views.controller.js
+import { renderResetPasswordView } from "../controllers/views.controller.js";
 
 const router = Router();
 

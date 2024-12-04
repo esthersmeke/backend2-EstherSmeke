@@ -14,8 +14,7 @@ class TicketService {
       );
     }
     try {
-      // Crear el ticket en la base de datos (la validación del correo la realiza el modelo)
-      const ticket = await ticketRepository.createTicket(ticketData);
+      const ticket = await ticketRepository.createTicket(ticketData); // Crear el ticket
 
       // Transformar productos para el correo de confirmación
       const purchasedItems =
@@ -34,46 +33,43 @@ class TicketService {
       // Enviar un correo de confirmación al comprador
       try {
         await sendMail({
-          from: `"Entrega" <${process.env.MAIL_USER}>`, // Dirección del remitente
-          to: ticket.purchaser, // Correo del comprador
-          subject: "Compra Confirmada", // Asunto del correo
+          from: `"Entrega" <${process.env.MAIL_USER}>`,
+          to: ticket.purchaser,
+          subject: "Compra Confirmada",
           text: `¡Tu compra ha sido procesada exitosamente!\n\nDetalles de la compra:\nTicket ID: ${ticket.code}\nMonto total: ${ticket.amount}\nEstado: ${ticket.status}\n\nProductos comprados:\n${purchasedItems}\n\nProductos no comprados (por falta de stock):\n${unprocessedItems}\n\nGracias por tu compra.`,
         });
       } catch (emailError) {
+        // Error al enviar el correo
         console.error("Error al enviar el correo:", emailError.message);
       }
 
       // Retornar el ticket estructurado con TicketDTO
-      return ticket; // Este objeto contiene el monto correcto desde la base de datos
+      return ticket;
     } catch (error) {
       console.error("Error al crear el ticket:", error.message);
       throw new Error("No se pudo crear el ticket.");
     }
   }
 
-  // Obtener todos los tickets sin estructurar con TicketDTO
+  // Obtener todos los tickets
   static async getAllTickets() {
     try {
       const tickets = await ticketRepository.getAllTickets();
-
-      // Retorna directamente la lista de tickets desde el repositorio
-      return tickets;
+      return tickets; // Retorna los tickets directamente
     } catch (error) {
       console.error("Error al obtener todos los tickets:", error.message);
       throw new Error("No se pudieron obtener los tickets.");
     }
   }
 
-  // Obtener un ticket por ID sin estructurar con TicketDTO
+  // Obtener un ticket por ID
   static async getTicketById(ticketId) {
     try {
       const ticket = await ticketRepository.findTicketById(ticketId);
       if (!ticket) {
         throw new Error(`El ticket con ID ${ticketId} no fue encontrado.`);
       }
-
-      // Retorna directamente el ticket recuperado del repositorio
-      return ticket;
+      return ticket; // Retorna el ticket recuperado
     } catch (error) {
       console.error("Error al obtener el ticket:", error.message);
       throw new Error("No se pudo obtener el ticket.");

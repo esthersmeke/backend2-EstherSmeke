@@ -5,8 +5,6 @@ const { jwtSecret } = config.auth;
 
 // Generar un token JWT
 export const generateToken = (user) => {
-  console.log("Clave usada en generateToken:", jwtSecret);
-
   return jwt.sign(
     {
       id: user._id,
@@ -15,7 +13,7 @@ export const generateToken = (user) => {
       email: user.email,
       age: user.age,
       role: user.role,
-      cart: user.cart, // Asegúrate de incluir el cartId
+      cart: user.cart,
     },
     jwtSecret,
     { expiresIn: "24h" }
@@ -30,7 +28,7 @@ export const generatePasswordResetToken = (user) => {
       email: user.email,
     },
     jwtSecret,
-    { expiresIn: "24h" } // Token de recuperación con expiración de 24 horas
+    { expiresIn: "24h" }
   );
 };
 
@@ -44,7 +42,6 @@ export const verifyToken = (token) => {
     const decoded = jwt.verify(token, jwtSecret);
     return decoded;
   } catch (error) {
-    console.error("Error en verifyToken:", error.message);
     throw new Error(
       "Error al obtener el usuario actual: Token inválido o expirado."
     );

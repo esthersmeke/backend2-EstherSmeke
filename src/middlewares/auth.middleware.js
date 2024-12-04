@@ -6,8 +6,6 @@ export const authenticateUser = (req, res, next) => {
     const token = req.cookies?.currentUser;
 
     if (!token) {
-      console.warn("No se encontró el token en las cookies.");
-
       // Comportamiento para APIs
       if (req.originalUrl.startsWith("/api")) {
         return res
@@ -27,8 +25,6 @@ export const authenticateUser = (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error("Error en authenticateUser:", error.message);
-
     // Comportamiento para APIs
     if (req.originalUrl.startsWith("/api")) {
       return res.status(403).json({ message: "Token inválido o expirado." });

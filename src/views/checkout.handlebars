@@ -1,13 +1,27 @@
+{{#if user.cartId}}
+  <input type="hidden" id="cart-id" value="{{user.cartId}}" />
+{{else}}
+  <p>Error: No se pudo cargar el carrito. Por favor, intenta de nuevo.</p>
+{{/if}}
+
 <h1>Checkout</h1>
-<div>
-  <h2>Resumen de la compra</h2>
-  {{#each cart}}
-    <div>
-      <h3>{{this.name}}</h3>
-      <p>Precio: ${{this.price}}</p>
+<div class="checkout-container">
+  <h2>Resumen de tu compra</h2>
+  {{#each cart.products}}
+    <div class="checkout-item">
+      <h3>{{this.product.title}}</h3>
+      <p>Precio: ${{this.product.price}}</p>
       <p>Cantidad: {{this.quantity}}</p>
+      <p>Total: ${{toFixed (multiply this.quantity this.product.price) 2}}</p>
+
+      <!-- Suma del precio -->
     </div>
   {{/each}}
+  <p>Total a pagar: ${{toFixed cart.totalPrice 2}}</p>
+  <button onclick="proceedToCheckout('{{user.cartId}}')">Confirmar Compra</button>
+
 </div>
-<button>Confirmar compra</button>
-<script src="/js/cart.js"></script>
+<div class="continue-shopping">
+  <a href="/products" class="btn-continue-shopping">← Seguir comprando</a>
+</div>
+<script src="/js/cart.js" defer></script>

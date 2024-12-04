@@ -35,7 +35,7 @@ const ticketSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ["pendiente", "completada", "cancelada"],
-    default: "pendiente",
+    default: "completada",
   },
   purchasedItems: [
     {

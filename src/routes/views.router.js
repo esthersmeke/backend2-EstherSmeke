@@ -58,5 +58,9 @@ router.get(
   passport.authenticate("github", { failureRedirect: "/login" }),
   githubCallback // Delegado al controlador de autenticación
 );
+// Vista para finalizar la compra (checkout)
+router.get("/checkout", authenticateUser, viewsController.renderCheckout);
 
+// Vista para detalles del ticket de compra
+router.get("/ticket/:id", authenticateUser, viewsController.renderTicketDetail);
 export default router;

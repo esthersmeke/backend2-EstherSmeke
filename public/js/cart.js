@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
           item.quantity;
         existingProductCard.querySelector(
           ".product-total-price"
-        ).textContent = `$${(item.quantity * item.product.price).toFixed(2)}`;
+        ).textContent = `$ ${(item.quantity * item.product.price).toFixed(2)}`;
       } else {
         const productCard = document.createElement("div");
         productCard.classList.add("product-card");
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cartSummary.innerHTML = `
       <h2>Resumen del Carrito</h2>
       <p>Total de productos: ${totalItems}</p>
-      <p>Total a pagar: $${totalPrice.toFixed(1)}</p>
+  <p>Total a pagar: $${parseFloat(totalPrice).toFixed(2)}</p>
     `;
   }
 
@@ -173,9 +173,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error("Error al procesar la compra");
 
       const data = await response.json();
-      alert(`Compra realizada con éxito. Ticket: ${data.ticket.code}`);
+
+      // Redirige al usuario al detalle del ticket
+      window.location.href = `/ticket/${data.ticket.id}`;
     } catch (error) {
       console.error("Error al finalizar la compra:", error.message);
+      alert(
+        "Hubo un error al procesar tu compra. Por favor, intenta de nuevo."
+      );
     }
   };
 });

@@ -1,0 +1,43 @@
+<h1>Detalles del Ticket</h1>
+
+<div class="ticket-detail-container">
+  <h2>Compra Exitosa</h2>
+  <p><strong>ID del Ticket:</strong> {{ticket._id}}</p>
+  <p><strong>Fecha:</strong> {{ticket.formattedDate}}</p>
+  <p><strong>Total Pagado:</strong> ${{toFixed ticket.amount 2}}</p>
+
+  <h3>Productos Comprados</h3>
+  {{#if ticket.purchasedItems}}
+    <div class="ticket-products">
+      {{#each ticket.purchasedItems}}
+        <div class="product-detail">
+          <p><strong>Producto:</strong> {{this.product.title}}</p>
+          <p><strong>Cantidad:</strong> {{this.quantity}}</p>
+          <p><strong>Precio Total:</strong>
+            ${{toFixed (multiply this.quantity this.product.price) 2}}</p>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <p>No se registraron productos comprados.</p>
+  {{/if}}
+
+  <h3>Productos No Procesados</h3>
+  {{#if ticket.unprocessedItems}}
+    <div class="unprocessed-products">
+      {{#each ticket.unprocessedItems}}
+        <div class="unprocessed-detail">
+          <p><strong>Producto:</strong> {{this.product.title}}</p>
+          <p><strong>Solicitado:</strong> {{this.requestedQuantity}}</p>
+          <p><strong>Disponible:</strong> {{this.availableStock}}</p>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <p>Todos los productos fueron procesados exitosamente.</p>
+  {{/if}}
+</div>
+
+<div class="continue-shopping">
+  <a href="/products" class="btn-continue-shopping">← Seguir Comprando</a>
+</div>

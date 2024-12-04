@@ -5,6 +5,7 @@ import CartDTO from "../dto/CartDTO.js";
 import * as productService from "../services/productService.js";
 import * as cartService from "../services/cartService.js";
 import * as userService from "../services/userService.js";
+import TicketService from "../services/ticketService.js";
 import cartRepository from "../dao/repositories/cartRepository.js"; // Importar el repositorio directamente
 
 import { sendMail } from "../utils/mailer.js"; // Asegúrate de importar sendMail correctamente
@@ -242,4 +243,57 @@ export const renderResetPasswordView = async (req, res) => {
 export const handleLogout = (req, res) => {
   res.clearCookie("currentUser");
   res.redirect("/login");
+};
+
+export const renderCheckout = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user || !user.cart) {
+      return res.redirect("/cart"); // Redirigir si no hay carrito asociado
+    }
+
+    const cart = await cartService.getCartById(user.cart);
+
+    if (!cart) {
+      return res
+        .status(404)
+        .render("error", { message: "Carrito no encontrado." });
+    }
+
+    res.render("checkout", {
+      cart: new CartDTO(cart), // Asegura que los datos sean consistentes
+      user: new UserDTO(user), // Asegura que `user.cartId` esté disponible
+    });
+  } catch (error) {
+    console.error("Error al renderizar la vista de checkout:", error.message);
+    res.status(500).render("error", { message: "Error interno del servidor." });
+  }
+};
+
+export const renderTicketDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ticket = await TicketService.getTicketById(id);
+
+    if (!ticket) {
+      return res
+        .status(404)
+        .render("error", { message: "Ticket no encontrado." });
+    }
+
+    // Formatea la fecha directamente en el controlador
+    ticket.formattedDate = ticket.purchase_datetime
+      ? new Date(ticket.purchase_datetime).toLocaleDateString("es-MX", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "Fecha no disponible";
+
+    // Renderiza la vista con el ticket formateado
+    res.render("ticketDetail", { ticket, user: req.user });
+  } catch (error) {
+    console.error("Error al renderizar la vista del ticket:", error.message);
+    res.status(500).render("error", { message: "Error interno del servidor." });
+  }
 };

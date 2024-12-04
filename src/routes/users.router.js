@@ -12,6 +12,7 @@ import {
   resetPassword,
   logoutUser,
 } from "../controllers/users.controller.js";
+import { renderResetPasswordView } from "../controllers/views.controller.js"; // Importa la función desde views.controller.js
 
 const router = Router();
 
@@ -23,7 +24,7 @@ router.post("/login", validateLogin, loginUser);
 
 // Recuperación de contraseña
 router.post("/forgot-password", forgotPassword);
-router.get("/reset-password/:token", resetPassword);
+router.get("/reset-password/:token", renderResetPasswordView);
 router.post("/reset-password/:token", resetPassword);
 
 // Obtener todos los usuarios

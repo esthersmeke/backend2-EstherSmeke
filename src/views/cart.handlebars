@@ -28,9 +28,11 @@
   <div class="cart-summary">
     <h2>Resumen del Carrito</h2>
     <p>Total de productos: {{#if cart.totalItems}}{{cart.totalItems}}{{else}}0{{/if}}</p>
-    <p>Total a pagar: $ {{#if cart.totalPrice}}{{cart.totalPrice}}{{else}}0.00{{/if}}</p>
+<p>Total a pagar: $ {{#if cart.totalPrice}}{{toFixed cart.totalPrice 2}}{{else}}0.00{{/if}}</p>
     <button onclick="clearCart('{{user.cartId}}')">Vaciar Carrito</button>
-    <button onclick="proceedToCheckout('{{user.cartId}}')">Finalizar Compra</button>
+     <div class="continue-shopping">
+    <a href="/checkout" class="btn-continue-shopping">Finalizar Compra</a>
+  </div>
   </div>
   <!-- "Seguir comprando" link -->
   <div class="continue-shopping">

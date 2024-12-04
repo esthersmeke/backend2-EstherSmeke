@@ -40,7 +40,10 @@ const hbsHelpers = {
   and: (...args) => args.every(Boolean),
   add: (a, b) => a + b,
   subtract: (a, b) => a - b,
+  multiply: (a, b) => a * b,
+  toFixed: (value, decimals) => parseFloat(value).toFixed(decimals),
 };
+
 // Configuración de Handlebars
 app.engine(
   "handlebars",
